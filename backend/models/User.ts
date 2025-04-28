@@ -1,8 +1,13 @@
-import { Table, Model, Column, DataType } from 'sequelize-typescript';
+import { Table, Model, Column, DataType, HasMany } from 'sequelize-typescript';
+import { PostLike } from './PostLike';
+import { Post } from './Post';
+import { Comment } from './Comment';
+import { CommentLike } from './CommentLike';
+import { UserFollow } from './UserFollow';
 
 @Table({
     tableName: "users",
-    timestamps: false,
+    timestamps: true,
     createdAt: "created_at",
     updatedAt: "updated_at"
 })
@@ -14,7 +19,7 @@ export class User extends Model {
         allowNull: false,
         defaultValue: DataType.UUIDV4,
         field: "user_id"
-    })    
+    })
     declare userId: string;
 
     @Column({
@@ -37,21 +42,21 @@ export class User extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false,
+        allowNull: true,
         field: "profile_picture_path"
     })
     declare profilePicture: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false,
+        allowNull: true,
         field: "full_name"
     })
     declare fullName: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false,
+        allowNull: true,
     })
     declare bio: string;
 
@@ -66,4 +71,22 @@ export class User extends Model {
         allowNull: false
     })
     declare birthdate: Date;
+
+    @HasMany(() => PostLike)
+    declare likes: PostLike[];
+
+    @HasMany(() => Post)
+    declare posts: Post[];
+
+    @HasMany(() => Comment)
+    declare comments: Comment[];
+
+    @HasMany(() => CommentLike)
+    declare commentLikes: CommentLike[];
+
+    @HasMany(() => UserFollow, 'followerId')
+    declare followings: UserFollow[]; 
+
+    @HasMany(() => UserFollow, 'followingId')
+    declare followers: UserFollow[]; 
 }
