@@ -1,6 +1,7 @@
-import { Table, Model, Column, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { Table, Model, Column, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
 import { User } from './User';
 import { Post } from './Post';
+import { CommentLike } from './CommentLike';
 
 @Table({
     tableName: "comments",
@@ -45,4 +46,7 @@ export class Comment extends Model {
         allowNull: false
     })
     declare comment: string;
+
+    @HasMany(() => CommentLike)
+    declare likes: CommentLike[];
 }
