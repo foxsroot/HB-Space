@@ -3,10 +3,8 @@ import { Comment } from './Comment';
 import { User } from './User';
 
 @Table({
-    tableName: "comments_likes",
-    timestamps: false,
-    createdAt: false,
-    updatedAt: false
+    tableName: "comment_likes",
+    timestamps: true
 })
 export class CommentLike extends Model {
     @ForeignKey(() => Comment)
