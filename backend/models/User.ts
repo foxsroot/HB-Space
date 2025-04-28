@@ -42,21 +42,21 @@ export class User extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false,
+        allowNull: true,
         field: "profile_picture_path"
     })
     declare profilePicture: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false,
+        allowNull: true,
         field: "full_name"
     })
     declare fullName: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false,
+        allowNull: true,
     })
     declare bio: string;
 
