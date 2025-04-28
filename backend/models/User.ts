@@ -3,10 +3,11 @@ import { PostLike } from './PostLike';
 import { Post } from './Post';
 import { Comment } from './Comment';
 import { CommentLike } from './CommentLike';
+import { UserFollow } from './UserFollow';
 
 @Table({
     tableName: "users",
-    timestamps: false,
+    timestamps: true,
     createdAt: "created_at",
     updatedAt: "updated_at"
 })
@@ -18,7 +19,7 @@ export class User extends Model {
         allowNull: false,
         defaultValue: DataType.UUIDV4,
         field: "user_id"
-    })    
+    })
     declare userId: string;
 
     @Column({
@@ -82,4 +83,10 @@ export class User extends Model {
 
     @HasMany(() => CommentLike)
     declare commentLikes: CommentLike[];
+
+    @HasMany(() => UserFollow, 'followerId')
+    declare followings: UserFollow[]; 
+
+    @HasMany(() => UserFollow, 'followingId')
+    declare followers: UserFollow[]; 
 }
