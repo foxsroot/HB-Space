@@ -1,10 +1,10 @@
-import { Table, Model, Column, DataType, ForeignKey } from 'sequelize-typescript';
+import { Table, Model, Column, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { User } from './User';
 import { Post } from './Post';
 
 @Table({
     tableName: "post_likes",
-    timestamps: true
+    timestamps: false
 })
 export class PostLike extends Model<PostLike> {
     @ForeignKey(() => User)
@@ -31,4 +31,10 @@ export class PostLike extends Model<PostLike> {
         defaultValue: DataType.NOW
     })
     declare timestamp: Date;
+
+    @BelongsTo(() => User)
+    declare user: User;
+
+    @BelongsTo(() => Post)
+    declare post: Post;
 }

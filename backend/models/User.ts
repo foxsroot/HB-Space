@@ -1,5 +1,8 @@
 import { Table, Model, Column, DataType, HasMany } from 'sequelize-typescript';
 import { PostLike } from './PostLike';
+import { Post } from './Post';
+import { Comment } from './Comment';
+import { CommentLike } from './CommentLike';
 
 @Table({
     tableName: "users",
@@ -70,4 +73,13 @@ export class User extends Model {
 
     @HasMany(() => PostLike)
     declare likes: PostLike[];
+
+    @HasMany(() => Post)
+    declare posts: Post[];
+
+    @HasMany(() => Comment)
+    declare comments: Comment[];
+
+    @HasMany(() => CommentLike)
+    declare commentLikes: CommentLike[];
 }

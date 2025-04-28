@@ -1,6 +1,7 @@
 import { Table, Model, Column, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
 import { User } from "./User";
 import { PostLike } from "./PostLike";
+import { Comment } from "./Comment";
 
 @Table({
     tableName: "posts",
@@ -45,4 +46,7 @@ export class Post extends Model {
 
     @HasMany(() => PostLike)
     declare likes: PostLike[];
+
+    @HasMany(() => Comment)
+    declare comments: Comment[];
 }
