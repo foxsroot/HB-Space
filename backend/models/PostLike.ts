@@ -24,4 +24,11 @@ export class PostLike extends Model<PostLike> {
         field: "post_id"
     })
     declare postId: string;
+
+    @Column({
+        type: DataType.DATE,
+        allowNull: false,
+        defaultValue: DataType.NOW
+    })
+    declare timestamp: Date;
 }

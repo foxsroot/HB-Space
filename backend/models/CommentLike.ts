@@ -30,8 +30,7 @@ export class CommentLike extends Model {
     @Column({
         type: DataType.DATE,
         allowNull: false,
-        defaultValue: DataType.NOW,
-        field: "timestamp"
+        defaultValue: DataType.NOW
     })
     declare timestamp: Date;
 }

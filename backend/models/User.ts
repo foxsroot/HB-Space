@@ -1,4 +1,5 @@
-import { Table, Model, Column, DataType } from 'sequelize-typescript';
+import { Table, Model, Column, DataType, HasMany } from 'sequelize-typescript';
+import { PostLike } from './PostLike';
 
 @Table({
     tableName: "users",
@@ -66,4 +67,7 @@ export class User extends Model {
         allowNull: false
     })
     declare birthdate: Date;
+
+    @HasMany(() => PostLike)
+    declare likes: PostLike[];
 }
