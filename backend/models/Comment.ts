@@ -1,20 +1,21 @@
 import { Table, Model, Column, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { User } from './User';
+import { Post } from './Post';
 
 @Table({
-    tableName: "users",
+    tableName: "comments",
     timestamps: false,
-    createdAt: "uploaded_at",
-    updatedAt: "edited_at"
+    createdAt: "created_at",
+    updatedAt: "updated_at"
 })
-
-export class User extends Model {
+export class Comment extends Model {
     @Column({
         type: DataType.UUID,
         primaryKey: true,
         allowNull: false,
         defaultValue: DataType.UUIDV4,
         field: "comment_id"
-    })    
+    })
     declare commentId: string;
 
     @ForeignKey(() => User)
@@ -27,9 +28,8 @@ export class User extends Model {
 
     @BelongsTo(() => User)
     declare user: User;
-    
 
-    @ForeignKey(() => User)
+    @ForeignKey(() => Post)
     @Column({
         type: DataType.UUID,
         field: "post_id",
@@ -37,9 +37,9 @@ export class User extends Model {
     })
     declare postId: string;
 
-    @BelongsTo(() => User)
-    declare post: User;
-    
+    @BelongsTo(() => Post)
+    declare post: Post;
+
     @Column({
         type: DataType.STRING,
         allowNull: false
