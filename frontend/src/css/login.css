@@ -1,3 +1,15 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -39,4 +51,81 @@
 
 .read-the-docs {
   color: #888;
+}
+
+.login-container {
+  background-color: #ffffff;
+  color: #333333;
+  max-width: 400px;
+  width: 100%;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #1e3c72;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333333;
+}
+
+input {
+  width: 93%;
+  padding: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  color: #333333;
+}
+
+input:focus {
+  outline: none;
+  border-color: #1e3c72;
+  box-shadow: 0 0 5px rgba(30, 60, 114, 0.5);
+}
+
+.login-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #1e3c72;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #2a5298;
+}
+
+.footer {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #666666;
+}
+
+.footer a {
+  color: #1e3c72;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.footer a:hover {
+  text-decoration: underline;
 }
