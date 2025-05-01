@@ -16,7 +16,9 @@ function Login() {
     e.preventDefault();
     console.log('Email:', email);
     console.log('Password:', password);
-    // Add your login logic here (e.g., API call)
+    
+    // Navigate to the /profile route
+    window.location.href = '/profile';
   };
 
   return (
