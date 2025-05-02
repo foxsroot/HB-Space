@@ -4,7 +4,11 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
-const Navbar = () => {
+interface Props {
+  onCreateClick: () => void;
+}
+
+const Navbar = ({ onCreateClick }: Props) => {
   return (
     <Box
       sx={{
@@ -41,11 +45,15 @@ const Navbar = () => {
         </Link>
       </Box>
 
-      <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
+      <Box
+        display="flex"
+        alignItems="center"
+        sx={{ mb: 3 }}
+        onClick={onCreateClick}
+        style={{ cursor: "pointer" }}
+      >
         <AddCircleOutlineIcon sx={{ color: "white", mr: 2 }} />
-        <Link to="/create" style={{ textDecoration: "none", color: "white" }}>
-          <Typography>Create</Typography>
-        </Link>
+        <Typography>Create</Typography>
       </Box>
 
       {/* Profile Link Section */}

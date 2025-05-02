@@ -30,7 +30,6 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
   };
 
   const handlePostSubmit = () => {
-    // Handle Post submission logic here
     console.log("Post Submitted", { image, description });
     onClose();
   };

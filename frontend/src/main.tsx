@@ -10,7 +10,6 @@ import Profile from "./pages/Profile.tsx";
 import Development from "./pages/Development.tsx";
 import Explore from "./pages/Explore.tsx";
 import Feed from "./pages/Feed.tsx";
-import CreatePost from "./pages/CreatePost.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
