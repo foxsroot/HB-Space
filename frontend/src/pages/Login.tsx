@@ -1,91 +1,60 @@
-import { useState } from 'react';
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Link,
-  Paper,
-} from '@mui/material';
+import { useState } from "react";
+import { Box, Button, TextField, Typography } from "@mui/material";
+import AuthLayout from "../components/AuthLayout.tsx";
+import AuthRedirectText from "../components/AuthRedirectText.tsx";
+import PasswordField from "../components/PasswordField.tsx";
 
-function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Email:', email);
-    console.log('Password:', password);
-    
-    // Navigate to the /profile route
-    window.location.href = '/profile';
+    console.log("Email:", email);
+    console.log("Password:", password);
+    window.location.href = "/profile";
   };
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      sx={{
-        background: 'linear-gradient(135deg, #1e3c72, #2a5298)',
-        m: 0,
-        p: 0
-      }}
-    >
-      <Paper
-        elevation={6}
-        sx={{
-          padding: 4,
-          width: 400,
-          borderRadius: 2,
-          textAlign: 'center',
-        }}
-      >
-        <Typography variant="h4" gutterBottom color="primary">
+    <AuthLayout>
+      <Typography variant="h4" gutterBottom color="primary">
+        Login
+      </Typography>
+      <Box component="form" onSubmit={handleLogin} noValidate>
+        <TextField
+          label="Email"
+          type="email"
+          fullWidth
+          margin="normal"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <PasswordField
+          label="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          sx={{
+            mt: 2,
+            backgroundColor: "#1e3c72",
+            "&:hover": { backgroundColor: "#2a5298" },
+          }}
+        >
           Login
-        </Typography>
-
-        <Box component="form" onSubmit={handleLogin} noValidate>
-          <TextField
-            label="Email"
-            type="email"
-            fullWidth
-            margin="normal"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <TextField
-            label="Password"
-            type="password"
-            fullWidth
-            margin="normal"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{ mt: 2, backgroundColor: '#1e3c72', '&:hover': { backgroundColor: '#2a5298' } }}
-          >
-            Login
-          </Button>
-        </Box>
-
-        <Box mt={3}>
-          <Typography variant="body2">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" underline="hover" fontWeight="bold" color="primary">
-              Sign up
-            </Link>
-          </Typography>
-        </Box>
-      </Paper>
-    </Box>
+        </Button>
+      </Box>
+      <AuthRedirectText
+        message="Don't have an account?"
+        linkText="Sign up"
+        linkHref="/register"
+      />
+    </AuthLayout>
   );
-}
+};
 
 export default Login;
