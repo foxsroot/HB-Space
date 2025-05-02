@@ -36,8 +36,8 @@ const Navbar = () => {
 
       <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
         <SearchIcon sx={{ color: "white", mr: 2 }} />
-        <Link to="/search" style={{ textDecoration: "none", color: "white" }}>
-          <Typography>Search</Typography>
+        <Link to="/explore" style={{ textDecoration: "none", color: "white" }}>
+          <Typography>Explore</Typography>
         </Link>
       </Box>
 

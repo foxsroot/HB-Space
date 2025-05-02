@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Box, Typography, Grid } from "@mui/material";
 import PostPreview from "../components/PostPreview";
 import Navbar from "../components/Navbar.tsx";
+import Searchbar from "../components/Searchbar";
 
 const allDummyPosts = Array.from({ length: 100 }, (_, i) => ({
   id: i + 1,
@@ -13,11 +14,13 @@ const POSTS_PER_LOAD = 25;
 
 function Explore() {
   const sortedPosts = allDummyPosts.sort((a, b) => b.likes - a.likes);
+
   const [visiblePosts, setVisiblePosts] = useState(
     sortedPosts.slice(0, POSTS_PER_LOAD)
   );
   const [loadedCount, setLoadedCount] = useState(POSTS_PER_LOAD);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const loadMorePosts = () => {
     if (loading || loadedCount >= sortedPosts.length) return;
@@ -58,9 +61,15 @@ function Explore() {
       <Navbar />
 
       <Box flex={1} sx={{ ml: "275px", p: 4 }}>
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-          Explore
-        </Typography>
+        <Box mb={2}>
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            Explore
+          </Typography>
+          <Searchbar
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </Box>
 
         <Grid container spacing={2}>
           {visiblePosts.map((post) => (
