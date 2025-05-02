@@ -1,15 +1,27 @@
-import { Box, Typography, Avatar } from "@mui/material";
+import { Box, Typography, Avatar, Modal, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SettingsIcon from "@mui/icons-material/Settings";
+import { useState } from "react";
+import SettingsPage from "../pages/SettingsPage";
 
 interface Props {
   onCreateClick: () => void;
 }
 
 const Navbar = ({ onCreateClick }: Props) => {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const handleOpenSettings = () => {
+    setIsSettingsOpen(true);
+  };
+
+  const handleCloseSettings = () => {
+    setIsSettingsOpen(false);
+  };
+
   return (
     <Box
       sx={{
@@ -58,14 +70,16 @@ const Navbar = ({ onCreateClick }: Props) => {
       </Box>
 
       {/* Settings Section */}
-      <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
+      <Box
+        display="flex"
+        alignItems="center"
+        sx={{ mb: 3, cursor: "pointer" }}
+        onClick={handleOpenSettings}
+      >
         <SettingsIcon sx={{ color: "white", mr: 2 }} />
-        <Link to="/settings" style={{ textDecoration: "none", color: "white" }}>
-          <Typography>Settings</Typography>
-        </Link>
+        <Typography>Settings</Typography>
       </Box>
 
-      {/* Profile Link Section */}
       <Box display="flex" alignItems="center" sx={{ mt: "auto", mb: 2 }}>
         <Avatar sx={{ width: 32, height: 32, mr: 2, bgcolor: "#2a5298" }}>
           HSW
@@ -74,6 +88,19 @@ const Navbar = ({ onCreateClick }: Props) => {
           <Typography>Profile</Typography>
         </Link>
       </Box>
+
+      <Modal
+        open={isSettingsOpen}
+        onClose={handleCloseSettings}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backdropFilter: "blur(5px)",
+        }}
+      >
+        <SettingsPage onClose={handleCloseSettings} />
+      </Modal>
     </Box>
   );
 };
