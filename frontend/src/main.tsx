@@ -10,7 +10,6 @@ import Profile from "./pages/Profile.tsx";
 import Development from "./pages/Development.tsx";
 import Explore from "./pages/Explore.tsx";
 import Feed from "./pages/Feed.tsx";
-import SettingsPage from "./pages/SettingsPage.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -21,7 +20,6 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/development" element={<Development />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/feed" element={<Feed />} />
