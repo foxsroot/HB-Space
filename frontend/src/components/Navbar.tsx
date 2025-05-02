@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 interface Props {
   onCreateClick: () => void;
@@ -54,6 +55,14 @@ const Navbar = ({ onCreateClick }: Props) => {
       >
         <AddCircleOutlineIcon sx={{ color: "white", mr: 2 }} />
         <Typography>Create</Typography>
+      </Box>
+
+      {/* Settings Section */}
+      <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
+        <SettingsIcon sx={{ color: "white", mr: 2 }} />
+        <Link to="/settings" style={{ textDecoration: "none", color: "white" }}>
+          <Typography>Settings</Typography>
+        </Link>
       </Box>
 
       {/* Profile Link Section */}
