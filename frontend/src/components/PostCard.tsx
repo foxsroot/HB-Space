@@ -1,6 +1,5 @@
 import {
   Card,
-  CardHeader,
   Avatar,
   CardMedia,
   CardContent,
@@ -21,6 +20,7 @@ interface Props {
   postId: string;
   initialLikes: number;
   initialComments: number;
+  onCommentClick?: () => void; // ✅ Optional comment click handler
 }
 
 const PostCard = ({
@@ -30,6 +30,7 @@ const PostCard = ({
   postId,
   initialLikes,
   initialComments,
+  onCommentClick,
 }: Props) => {
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(initialLikes);
@@ -48,7 +49,7 @@ const PostCard = ({
         backgroundColor: "#121212",
         color: "white",
         borderRadius: 2,
-        overflow: "hidden", // ensures no spacing gaps
+        overflow: "hidden",
       }}
     >
       <Box
@@ -97,7 +98,11 @@ const PostCard = ({
             <FavoriteIcon />
           </IconButton>
           <Typography variant="body2">{likes}</Typography>
-          <IconButton sx={{ color: "white", p: 0.5 }}>
+
+          <IconButton
+            onClick={onCommentClick} // ✅ Handle comment button click
+            sx={{ color: "white", p: 0.5 }}
+          >
             <ChatBubbleOutlineIcon />
           </IconButton>
           <Typography variant="body2">{initialComments}</Typography>
