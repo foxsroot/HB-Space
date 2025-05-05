@@ -21,14 +21,21 @@ interface Props {
   onClose: () => void;
   users: User[];
   onFollowToggle?: (userId: string) => void;
+  title: string;
 }
 
-const UserListDialog = ({ open, onClose, users, onFollowToggle }: Props) => {
+const UserListDialog = ({
+  open,
+  onClose,
+  users,
+  onFollowToggle,
+  title,
+}: Props) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          Users
+          {title}
           <IconButton onClick={onClose} size="small">
             <CloseIcon />
           </IconButton>
