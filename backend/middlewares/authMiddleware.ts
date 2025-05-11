@@ -9,7 +9,7 @@ if (!JWT_SECRET) {
 }
 
 export interface AuthPayload {
-    userId: number;
+    userId: string;
     username: string;
     email: string;
 }
