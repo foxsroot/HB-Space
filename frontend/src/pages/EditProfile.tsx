@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Box, Typography, Button, TextField, DialogContent, Grid } from "@mui/material";
-import FileUpload from "../components/FileUpload";
+// import { Box, Typography, Button, TextField, DialogContent, Grid } from "@mui/material";
+import { Box, Typography, Button, TextField } from "@mui/material";
+// import FileUpload from "../components/FileUpload";
 
 interface EditProfilePageProps {
     onClose: () => void;
@@ -9,10 +10,10 @@ interface EditProfilePageProps {
 const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
     const [activePanel] = useState< "account" >("account");
     
-    const [,setImage] = useState<string | null>(null);
-    const handleFileUpload = (file: string) => {
-        setImage(file);
-    };
+    // const [,setImage] = useState<string | null>(null);
+    // const handleFileUpload = (file: string) => {
+    //     setImage(file);
+    // };
 
     const renderAccountDetailsPanel = () => (
         <Box
