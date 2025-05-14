@@ -24,7 +24,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
       />
       <label htmlFor="file-upload">
         <Button variant="contained" component="span" fullWidth>
-          Upload Image
+          Upload Image / Video
         </Button>
       </label>
       <Typography
@@ -33,7 +33,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
         color="textSecondary"
         marginTop={1}
       >
-        Or drag and drop your image here
       </Typography>
     </Box>
   );
