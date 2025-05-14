@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Box, Typography, Button, Avatar, Grid } from "@mui/material";
+import { Box, Typography, Button, Avatar, Grid, Modal } from "@mui/material";
 import { Link } from "react-router-dom";
 import PostPreview from "../components/PostPreview";
 import Navbar from "../components/Navbar.tsx";
+import EditProfilePage from "./EditProfile.tsx";
 
 type Post = {
   id: number;
@@ -13,6 +14,15 @@ type Post = {
 function Profile() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+
+  const handleOpenEditProfile = () => {
+    setIsEditProfileOpen(true);
+  };
+
+  const handleCloseEditProfile = () => {
+    setIsEditProfileOpen(false);
+  };
 
   const handleOpenDialog = (post: Post) => {
     setSelectedPost(post);
@@ -81,8 +91,10 @@ function Profile() {
             </Typography>
           </Box>
 
+          {/* Edit Profile Button */}
           <Button
             variant="outlined"
+            onClick={handleOpenEditProfile}
             sx={{
               color: "white",
               borderColor: "gray",
@@ -91,6 +103,19 @@ function Profile() {
           >
             Edit Profile
           </Button>
+
+          <Modal
+            open={isEditProfileOpen}
+            onClose={handleCloseEditProfile}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(5px)",
+            }}
+          >
+            <EditProfilePage onClose={handleCloseEditProfile} />
+          </Modal>
         </Box>
 
         {/* Posts Section */}

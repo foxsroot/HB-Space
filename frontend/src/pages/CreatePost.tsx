@@ -4,9 +4,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
   Grid,
-  Box,
 } from "@mui/material";
 import FileUpload from "../components/FileUpload";
 import PostDetailsForm from "../components/PostDetailForm.tsx";
@@ -39,10 +37,10 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
       <DialogTitle>Create New Post</DialogTitle>
       <DialogContent>
         <Grid container spacing={2}>
-          <Grid item xs={12}>
+          <Grid>
             <FileUpload onFileUpload={handleFileUpload} />
           </Grid>
-          <Grid item xs={12}>
+          <Grid>
             <PostDetailsForm
               description={description}
               onDescriptionChange={handleDescriptionChange}
