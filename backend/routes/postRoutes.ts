@@ -5,6 +5,10 @@ import {
   getPostById,
   updatePost,
   deletePost,
+  likePost,
+  unlikePost,
+  getLikeCount,
+  getLikes
 } from "../controllers/postController";
 import { authenticateToken } from "../middlewares/authMiddleware";
 import { uploadSingleImage } from "../middlewares/multerMiddleware";
@@ -20,5 +24,10 @@ router.get("/:postId", getPostById);
 router.put("/:postId", authenticateToken, uploadSingleImage, updatePost);
 
 router.delete("/:postId", authenticateToken, deletePost);
+
+router.post("/:postId/like", authenticateToken, likePost);
+
+router.get("/:postId/like", authenticateToken, getLikes);
+
 
 export default router;

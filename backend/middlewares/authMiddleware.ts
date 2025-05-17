@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import Redis from "ioredis";
@@ -9,7 +12,7 @@ if (!JWT_SECRET) {
     throw new Error("JWT_SECRET is not defined in the environment variables.");
 }
 
-const redis = new Redis(); 
+const redis = new Redis();
 
 export interface AuthPayload {
     userId: string;

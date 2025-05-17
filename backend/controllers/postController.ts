@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Post } from "../models/Post";
 import { ApiError } from "../utils/ApiError";
+import { PostLike, User } from "../models";
 
 export const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -63,7 +64,7 @@ export const updatePost = async (req: Request, res: Response, next: NextFunction
 
   const { postId } = req.params;
   const { caption } = req.body;
-  const image = req.file?.path; 
+  const image = req.file?.path;
 
   try {
     const post = await Post.findByPk(postId);
@@ -110,3 +111,104 @@ export const deletePost = async (req: Request, res: Response, next: NextFunction
     next(new ApiError(500, "Failed to delete post"));
   }
 };
+
+export const getLikeCount = async (req: Request, res: Response, next: NextFunction) => {
+  const { postId } = req.params;
+
+  try {
+    const likeCount = await PostLike.count({
+      where: { postId }
+    });
+
+    res.status(200).json({ postId, likeCount });
+  } catch (error) {
+    next(new ApiError(500, "Failed to fetch number of like for the post"));
+  }
+};
+
+export const getLikes = async (req: Request, res: Response, next: NextFunction) => {
+  const { postId } = req.params;
+
+  try {
+    const likes = await PostLike.findAll({
+      where: { postId },
+      include: [
+        {
+          model: User,
+          attributes: ['userId', 'username', 'profilePicture']
+        }
+      ]
+    });
+
+    const likedBy = likes.map(like => like.user);
+
+    res.status(200).json({ postId, likedBy });
+  } catch (error) {
+    next(new ApiError(500, "Failed to fetch list of users"));
+  }
+}
+
+export const likePost = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new ApiError(401, "Unauthorized"));
+  }
+
+  const { postId } = req.params;
+  const { userId } = req.user;
+
+  try {
+    const post = await Post.findByPk(postId);
+
+    if (!post) {
+      return next(new ApiError(404, "Post not found"));
+    }
+
+    const alreadyLiked = await PostLike.findOne({
+      where: { postId, userId }
+    });
+
+    if (alreadyLiked) {
+      return next(new ApiError(409, "You have already liked this post"));
+    }
+
+    const newLike = await PostLike.create({
+      postId,
+      userId
+    });
+
+    res.status(201).json({ message: "Post liked", like: newLike });
+  } catch (error) {
+    next(new ApiError(500, "Failed to like post"));
+  }
+}
+
+export const unlikePost = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new ApiError(401, "Unauthorized"));
+  }
+
+  const { postId } = req.params;
+  const { userId } = req.user;
+
+  try {
+    const post = await Post.findByPk(postId);
+
+    if (!post) {
+      return next(new ApiError(404, "Post not found"));
+    }
+
+    const liked = await PostLike.findOne({
+      where: { postId, userId }
+    });
+
+    if (!liked) {
+      return next(new ApiError(404, "Like not found"));
+    }
+
+    await liked.destroy();
+
+    res.status(200).json({ message: "post unliked" });
+  } catch (error) {
+    next(new ApiError(500, "Failed to unlike post"));
+  }
+}
