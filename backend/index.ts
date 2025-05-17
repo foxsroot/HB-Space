@@ -13,14 +13,14 @@ import postRoutes from "./routes/postRoutes"; // Import post routes
 const app = express();
 
 // Sync the database
-// sequelize
-//   .sync()
-//   .then(() => {
-//     console.log("Database synced!");
-//   })
-//   .catch((err) => {
-//     console.log("Failed to sync database:", err);
-//   });
+sequelize
+  .sync()
+  .then(() => {
+    console.log("Database synced!");
+  })
+  .catch((err) => {
+    console.log("Failed to sync database:", err);
+  });
 
 app.use(json());
 

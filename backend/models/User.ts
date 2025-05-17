@@ -62,13 +62,13 @@ export class User extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     declare country: string;
 
     @Column({
         type: DataType.DATE,
-        allowNull: false
+        allowNull: true
     })
     declare birthdate: Date;
 
@@ -85,8 +85,8 @@ export class User extends Model {
     declare commentLikes: CommentLike[];
 
     @HasMany(() => UserFollow, 'followerId')
-    declare followings: UserFollow[]; 
+    declare followings: UserFollow[];
 
     @HasMany(() => UserFollow, 'followingId')
-    declare followers: UserFollow[]; 
+    declare followers: UserFollow[];
 }

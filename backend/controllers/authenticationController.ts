@@ -73,20 +73,20 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         return next(new ApiError(400, "Missing required fields."));
     }
 
-    try {
-        const existingUser = await User.findOne({
-            where: {
-                [Op.or]: [
-                    { username },
-                    { email }
-                ]
-            }
-        })
-
-        if (existingUser) {
-            return next(new ApiError(409, "Username or email already exists."));
+    const existingUser = await User.findOne({
+        where: {
+            [Op.or]: [
+                { username },
+                { email }
+            ]
         }
+    })
 
+    if (existingUser) {
+        return next(new ApiError(409, "Username or email already exists."));
+    }
+
+    try {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await User.create({

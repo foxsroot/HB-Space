@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -10,10 +10,10 @@ module.exports = {
         allowNull: false,
         references: {
           model: "users",
-          key: "user_id"
+          key: "user_id",
         },
         onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: "CASCADE",
       },
       comment_id: {
         type: Sequelize.UUID,
@@ -21,20 +21,23 @@ module.exports = {
         allowNull: false,
         references: {
           model: "comments",
-          key: "comment_id"
+          key: "comment_id",
         },
         onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: "CASCADE",
       },
-      timestamp: {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW
-      }
+      },
+      updated_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
     });
   },
 
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable("comment_likes");
-  }
+  },
 };
