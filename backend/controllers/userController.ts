@@ -11,7 +11,9 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
   const { userId } = req.user;
 
   try {
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId, {
+      attributes: { exclude: ["password"] }
+    });
     if (!user) {
       return next(new ApiError(404, "User not found"));
     }
@@ -27,7 +29,9 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
   const { id } = req.params;
 
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findByPk(id, {
+      attributes: { exclude: ["password"] }
+    });
     if (!user) {
       return next(new ApiError(404, "User not found"));
     }
