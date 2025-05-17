@@ -3,7 +3,7 @@ import {
   getUser,
   getUserById,
   updateUser,
-  // createUser,
+  changePassword,
 } from "../controllers/userController";
 import { authenticateToken } from "../middlewares/authMiddleware";
 
@@ -15,10 +15,10 @@ router.get("/", authenticateToken, getUser);
 // Route to get a profile by ID
 router.get("/:id", authenticateToken, getUserById);
 
-// Route to create a new profile
-// router.post("/", createUser);
-
 // Route to update an existing profile
 router.put("/", authenticateToken, updateUser);
+
+// Route to change password
+router.post("/change-password", authenticateToken, changePassword);
 
 export default router;

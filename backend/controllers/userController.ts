@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { User } from "../models/User";
 import { ApiError } from "../utils/ApiError";
+import bcrypt from "bcrypt";
 
 // Get the current user's details
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -128,5 +129,37 @@ export const deleteUser = async (req: Request, res: Response, next: NextFunction
     res.status(200).json({ message: "User deleted" });
   } catch (error) {
     return next(new ApiError(500, "Failed to delete user"));
+  }
+};
+
+// Change password
+export const changePassword = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new ApiError(401, "Unauthorized"));
+  }
+
+  const { oldPassword, newPassword } = req.body;
+  if (!oldPassword || !newPassword) {
+    return next(new ApiError(400, "Old password and new password are required"));
+  }
+
+  try {
+    const user = await User.findByPk(req.user.userId);
+    if (!user) {
+      return next(new ApiError(404, "User not found"));
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return next(new ApiError(400, "Old password is incorrect"));
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    return next(new ApiError(500, "Failed to change password"));
   }
 };
