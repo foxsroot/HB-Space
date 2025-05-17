@@ -15,11 +15,11 @@ import { uploadSingleImage } from "../middlewares/multerMiddleware";
 
 const router = express.Router();
 
-router.get("/", getAllPosts);
+router.get("/", authenticateToken, getAllPosts);
 
 router.post("/", authenticateToken, uploadSingleImage, createPost);
 
-router.get("/:postId", getPostById);
+router.get("/:postId", authenticateToken, getPostById);
 
 router.put("/:postId", authenticateToken, uploadSingleImage, updatePost);
 

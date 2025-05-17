@@ -4,6 +4,10 @@ import { ApiError } from "../utils/ApiError";
 import { PostLike, User } from "../models";
 
 export const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new ApiError(401, "Unauthorized"));
+  }
+
   try {
     const posts = await Post.findAll({
       include: ["user", "likes", "comments"],
@@ -41,6 +45,10 @@ export const createPost = async (req: Request, res: Response, next: NextFunction
 };
 
 export const getPostById = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new ApiError(401, "Unauthorized"));
+  }
+  
   const { postId } = req.params;
 
   try {
