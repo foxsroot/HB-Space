@@ -13,7 +13,7 @@ const router = express.Router();
 router.get("/", authenticateToken, getUser);
 
 // Route to get a profile by ID
-router.get("/:id", getUserById);
+router.get("/:id", authenticateToken, getUserById);
 
 // Route to create a new profile
 // router.post("/", createUser);

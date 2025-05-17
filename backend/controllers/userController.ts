@@ -26,6 +26,10 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
 
 // Get a user by ID
 export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new ApiError(401, "Unauthorized"));
+  }
+
   const { id } = req.params;
 
   try {
