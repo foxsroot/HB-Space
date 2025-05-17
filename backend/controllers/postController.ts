@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Post } from "../models/Post";
 import { ApiError } from "../utils/ApiError";
-import { PostLike, User } from "../models";
+import { PostLike, User, Comment } from "../models";
 
 export const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
@@ -10,7 +10,30 @@ export const getAllPosts = async (req: Request, res: Response, next: NextFunctio
 
   try {
     const posts = await Post.findAll({
-      include: ["user", "likes", "comments"],
+      include: [
+        {
+          model: User,
+          attributes: ['userId', 'username', 'profilePicture', 'fullName']
+        },
+        {
+          model: PostLike,
+          include: [
+            {
+              model: User,
+              attributes: ['userId', 'username', 'profilePicture']
+            }
+          ]
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ['userId', 'username', 'profilePicture']
+            }
+          ]
+        }
+      ]
     });
     res.status(200).json({ posts });
   } catch (error) {
@@ -48,7 +71,7 @@ export const getPostById = async (req: Request, res: Response, next: NextFunctio
   if (!req.user) {
     return next(new ApiError(401, "Unauthorized"));
   }
-  
+
   const { postId } = req.params;
 
   try {
