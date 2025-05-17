@@ -6,7 +6,7 @@ import { Post } from './Post';
     tableName: "post_likes",
     timestamps: false
 })
-export class PostLike extends Model<PostLike> {
+export class PostLike extends Model {
     @ForeignKey(() => User)
     @Column({
         type: DataType.UUID,

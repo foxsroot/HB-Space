@@ -1,24 +1,24 @@
 import express from "express";
 import {
-  getProfile,
-  getProfileById,
-  updateProfile,
-  createProfile,
+  getUser,
+  getUserById,
+  updateUser,
+  // createUser,
 } from "../controllers/userController";
 import { authenticateToken } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
 // Route to get the current user's profile
-router.get("/", authenticateToken, getProfile);
+router.get("/", authenticateToken, getUser);
 
 // Route to get a profile by ID
-router.get("/:id", getProfileById);
+router.get("/:id", getUserById);
 
 // Route to create a new profile
-router.post("/", createProfile);
+// router.post("/", createUser);
 
 // Route to update an existing profile
-router.put("/", authenticateToken, updateProfile);
+router.put("/", authenticateToken, updateUser);
 
 export default router;
