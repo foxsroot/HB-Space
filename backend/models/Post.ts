@@ -17,7 +17,7 @@ export class Post extends Model {
         allowNull: false,
         defaultValue: DataType.UUIDV4,
         field: "post_id"
-    })    
+    })
     declare postId: string;
 
     @Column({

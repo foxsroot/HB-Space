@@ -4,7 +4,9 @@ import { Post } from './Post';
 
 @Table({
     tableName: "post_likes",
-    timestamps: false
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at"
 })
 export class PostLike extends Model {
     @ForeignKey(() => User)
@@ -24,13 +26,6 @@ export class PostLike extends Model {
         field: "post_id"
     })
     declare postId: string;
-
-    @Column({
-        type: DataType.DATE,
-        allowNull: false,
-        defaultValue: DataType.NOW
-    })
-    declare timestamp: Date;
 
     @BelongsTo(() => User)
     declare user: User;

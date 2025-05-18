@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { Post } from "../models/Post";
 import { ApiError } from "../utils/ApiError";
-import { PostLike, User, Comment } from "../models";
+import { PostLike, User, Comment, Post, sequelize } from "../models/index";
 
 export const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
@@ -10,33 +9,34 @@ export const getAllPosts = async (req: Request, res: Response, next: NextFunctio
 
   try {
     const posts = await Post.findAll({
+      attributes: {
+        include: [
+          [sequelize.fn("COUNT", sequelize.col("likes.post_id")), "likesCount"],
+          [sequelize.fn("COUNT", sequelize.col("comments.post_id")), "commentsCount"]
+        ]
+      },
       include: [
         {
           model: User,
+          as: "user",
           attributes: ['userId', 'username', 'profilePicture', 'fullName']
         },
         {
           model: PostLike,
-          include: [
-            {
-              model: User,
-              attributes: ['userId', 'username', 'profilePicture']
-            }
-          ]
+          as: "likes",
+          attributes: []
         },
         {
           model: Comment,
-          include: [
-            {
-              model: User,
-              attributes: ['userId', 'username', 'profilePicture']
-            }
-          ]
+          as: "comments",
+          attributes: []
         }
-      ]
+      ],
+      group: ["Post.post_id", "user.user_id"],
     });
     res.status(200).json({ posts });
   } catch (error) {
+    console.error("Error:", error);
     next(new ApiError(500, "Failed to fetch posts"));
   }
 };
@@ -140,20 +140,6 @@ export const deletePost = async (req: Request, res: Response, next: NextFunction
     res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
     next(new ApiError(500, "Failed to delete post"));
-  }
-};
-
-export const getLikeCount = async (req: Request, res: Response, next: NextFunction) => {
-  const { postId } = req.params;
-
-  try {
-    const likeCount = await PostLike.count({
-      where: { postId }
-    });
-
-    res.status(200).json({ postId, likeCount });
-  } catch (error) {
-    next(new ApiError(500, "Failed to fetch number of like for the post"));
   }
 };
 
