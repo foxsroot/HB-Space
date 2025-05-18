@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
-import { Comment, CommentLike, User } from "../models/index";
+import { Comment, CommentLike, Post, User } from "../models/index";
 
 export async function postComment(req: Request, res: Response, next: NextFunction) {
     if (!req.user) {
         return next(new ApiError(401, "Unauthorized"));
     }
+
+    console.log("PARAMS: ", req.params);
 
     const { postId } = req.params;
     const { comment } = req.body;
@@ -58,6 +60,7 @@ export async function likeComment(req: Request, res: Response, next: NextFunctio
 
         res.status(201).json({ message: "Comment liked", like: newLike });
     } catch (error) {
+        console.log(error);
         return next(new ApiError(500, "Failed to like comment"));
     }
 }
@@ -103,7 +106,7 @@ export async function getCommentLikes(req: Request, res: Response, next: NextFun
                 {
                     model: User,
                     as: "user",
-                    attributes: ["userId", "username", "fullName"]
+                    attributes: ["userId", "username", "fullName", "profilePicture"]
                 }
             ]
         });
@@ -123,8 +126,8 @@ export async function editComment(req: Request, res: Response, next: NextFunctio
     const { comment } = req.body;
     const { userId } = req.user;
 
-    if (!commentId || !comment) {
-        return next(new ApiError(400, "commentId and comment are required"));
+    if (!comment) {
+        return next(new ApiError(400, "Comment is required"));
     }
 
     try {
@@ -160,13 +163,27 @@ export async function deleteComment(req: Request, res: Response, next: NextFunct
     }
 
     try {
-        const existingComment = await Comment.findByPk(commentId);
+        const existingComment = await Comment.findByPk(commentId, {
+            include: [
+                {
+                    model: Post,
+                    as: "post",
+                    include: [
+                        {
+                            model: User,
+                            as: "user",
+                            attributes: ["userId"]
+                        }
+                    ]
+                }
+            ]
+        });
 
         if (!existingComment) {
             return next(new ApiError(404, "Comment not found"));
         }
 
-        if (existingComment.userId !== userId) {
+        if (existingComment.post.user.userId !== userId && existingComment.userId !== userId) {
             return next(new ApiError(403, "You are not authorized to delete this comment"));
         }
 
@@ -174,6 +191,7 @@ export async function deleteComment(req: Request, res: Response, next: NextFunct
 
         res.status(200).json({ message: "Comment deleted" });
     } catch (error) {
+        console.log(error);
         return next(new ApiError(500, "Failed to delete comment"));
     }
 }

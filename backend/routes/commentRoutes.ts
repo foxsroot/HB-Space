@@ -2,7 +2,7 @@ import express from "express";
 import { postComment, getCommentLikes, likeComment, unlikeComment, editComment, deleteComment } from "../controllers/commentController";
 import { authenticateToken } from "../middlewares/authMiddleware";
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.post("/comments", authenticateToken, postComment);
 router.get("/comments/:commentId/like", authenticateToken, getCommentLikes);

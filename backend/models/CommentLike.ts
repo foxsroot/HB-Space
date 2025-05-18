@@ -4,7 +4,9 @@ import { User } from './User';
 
 @Table({
     tableName: "comment_likes",
-    timestamps: false
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at"
 })
 export class CommentLike extends Model {
     @ForeignKey(() => Comment)
@@ -24,13 +26,6 @@ export class CommentLike extends Model {
         field: "user_id"
     })
     declare userId: string;
-
-    @Column({
-        type: DataType.DATE,
-        allowNull: false,
-        defaultValue: DataType.NOW
-    })
-    declare timestamp: Date;
 
     @BelongsTo(() => User)
     declare user: User;
