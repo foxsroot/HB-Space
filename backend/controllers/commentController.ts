@@ -1,38 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
 import { Comment, CommentLike } from "../models/index";
-import sequelize from "sequelize";
-
-export async function getComment(req: Request, res: Response, next: NextFunction) {
-    if (!req.user) {
-        return next(new ApiError(401, "Unauthorized"));
-    }
-
-    const { postId } = req.params;
-
-    try {
-        const comments = await Comment.findAll({
-            where: { postId },
-            include: [
-                {
-                    model: CommentLike,
-                    as: "likes",
-                    attributes: []
-                }
-            ],
-            attributes: {
-                include: [
-                    [sequelize.fn("COUNT", sequelize.col("likes.id")), "likesCount"]
-                ]
-            },
-            group: ["Comment.id"]
-        });
-
-        res.status(200).json({ comments });
-    } catch (error) {
-        return next(new ApiError(500, "Failed to fetch comments"));
-    }
-}
 
 export async function postComment(req: Request, res: Response, next: NextFunction) {
     if (!req.user) {

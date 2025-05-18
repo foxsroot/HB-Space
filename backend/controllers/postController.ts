@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
 import { PostLike, User, Comment, Post, sequelize } from "../models/index";
+import { getComments } from "../services/commentServices";
 
 export const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
@@ -41,7 +42,6 @@ export const getAllPosts = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-// Create a new post
 export const createPost = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
     return next(new ApiError(401, "Unauthorized"));
@@ -76,13 +76,36 @@ export const getPostById = async (req: Request, res: Response, next: NextFunctio
 
   try {
     const post = await Post.findByPk(postId, {
-      include: ["user", "likes", "comments"], // Include related models
+      attributes: {
+        include: [
+          [sequelize.fn("COUNT", sequelize.col("likes.post_id")), "likesCount"],
+        ]
+      },
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ['userId', 'username', 'profilePicture', 'fullName']
+        },
+        {
+          model: PostLike,
+          as: "likes",
+          attributes: []
+        },
+      ],
+      group: ["Post.post_id",
+        "user.user_id"],
     });
     if (!post) {
       return next(new ApiError(404, "Post not found"));
     }
 
-    res.status(200).json({ post });
+    post.dataValues.likesCount = parseInt(post.dataValues.likesCount as string, 10) || 0;
+
+    const { comments } = await getComments(postId);
+    post.dataValues.comments = comments ?? [];
+
+    res.status(200).json(post);
   } catch (error) {
     next(new ApiError(500, "Failed to fetch post"));
   }

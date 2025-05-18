@@ -1,10 +1,9 @@
 import express from "express";
-import { getComment, postComment, likeComment, unlikeComment, editComment, deleteComment } from "../controllers/commentController";
+import { postComment, likeComment, unlikeComment, editComment, deleteComment } from "../controllers/commentController";
 import { authenticateToken } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
-router.get("/comments", authenticateToken, getComment);
 router.post("/comments", authenticateToken, postComment);
 router.post("/comments/:commentId/like", authenticateToken, likeComment);
 router.delete("/comments/:commentId/unlike", authenticateToken, unlikeComment);
