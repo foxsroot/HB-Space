@@ -1,17 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
-import { Comment, CommentLike } from "../models/index";
+import { Comment, CommentLike, User } from "../models/index";
 
 export async function postComment(req: Request, res: Response, next: NextFunction) {
     if (!req.user) {
         return next(new ApiError(401, "Unauthorized"));
     }
 
-    const { postId, comment } = req.body;
+    const { postId } = req.params;
+    const { comment } = req.body;
     const { userId } = req.user;
 
-    if (!postId || !comment) {
-        return next(new ApiError(400, "postId and comment message are required"));
+    if (!comment) {
+        return next(new ApiError(400, "Comment message are required"));
     }
 
     try {
@@ -32,12 +33,8 @@ export async function likeComment(req: Request, res: Response, next: NextFunctio
         return next(new ApiError(401, "Unauthorized"));
     }
 
-    const { commentId } = req.body;
+    const { commentId } = req.params;
     const { userId } = req.user;
-
-    if (!commentId) {
-        return next(new ApiError(400, "commentId is required"));
-    }
 
     try {
         const existingComment = await Comment.findByPk(commentId);
@@ -73,10 +70,6 @@ export async function unlikeComment(req: Request, res: Response, next: NextFunct
     const { commentId } = req.params;
     const { userId } = req.user;
 
-    if (!commentId) {
-        return next(new ApiError(400, "commentId is required"));
-    }
-
     try {
         const liked = await CommentLike.findOne({
             where: { commentId, userId }
@@ -91,6 +84,33 @@ export async function unlikeComment(req: Request, res: Response, next: NextFunct
         res.status(200).json({ message: "Comment unliked" });
     } catch (error) {
         return next(new ApiError(500, "Failed to unlike comment"));
+    }
+}
+
+export async function getCommentLikes(req: Request, res: Response, next: NextFunction) {
+    const { commentId } = req.params;
+
+    try {
+        const comment = await Comment.findByPk(commentId);
+
+        if (!comment) {
+            return next(new ApiError(404, "Comment not found"));
+        }
+
+        const likes = await CommentLike.findAll({
+            where: { commentId },
+            include: [
+                {
+                    model: User,
+                    as: "user",
+                    attributes: ["userId", "username", "fullName"]
+                }
+            ]
+        });
+
+        res.status(200).json({ likes });
+    } catch (error) {
+        return next(new ApiError(500, "Failed to fetch likes"));
     }
 }
 

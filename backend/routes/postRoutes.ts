@@ -7,7 +7,6 @@ import {
   deletePost,
   likePost,
   unlikePost,
-  getLikeCount,
   getLikes
 } from "../controllers/postController";
 import { authenticateToken } from "../middlewares/authMiddleware";
@@ -27,7 +26,8 @@ router.delete("/:postId", authenticateToken, deletePost);
 
 router.post("/:postId/like", authenticateToken, likePost);
 
-router.get("/:postId/like", authenticateToken, getLikes);
+router.delete(":postId/like", authenticateToken, unlikePost);
 
+router.get("/:postId/like", authenticateToken, getLikes);
 
 export default router;

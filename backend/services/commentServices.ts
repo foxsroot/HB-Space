@@ -19,8 +19,8 @@ export async function getComments(postId: string) {
             },
             group: ["Comment.comment_id"],
             order: [
-                [sequelize.fn("COUNT", sequelize.col("likes.comment_id")), "DESC"],  // order by likesCount desc
-                ['created_at', 'ASC']  // then by created_at ascending
+                [sequelize.fn("COUNT", sequelize.col("likes.comment_id")), "DESC"],
+                ['created_at', 'ASC']
             ]
         });
 
