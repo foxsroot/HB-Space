@@ -9,6 +9,7 @@ import authRoutes from "./routes/authRoutes";
 import commentRoute from "./routes/commentRoutes";
 import userRoutes from "./routes/userRoutes";
 import postRoutes from "./routes/postRoutes"; // Import post routes
+import cors from "cors";
 
 const app = express();
 
@@ -21,6 +22,11 @@ sequelize
   .catch((err) => {
     console.log("Failed to sync database:", err);
   });
+
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}));
 
 app.use(json());
 
