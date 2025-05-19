@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import Alert from "@mui/material/Alert";
 import { ReactNode } from "react";
 
@@ -10,13 +11,23 @@ interface Props {
 
 export default function AlertBox({
   severity,
-  variant = "outlined",
+  variant = "filled",
   children,
   onClose,
 }: Props) {
   return (
-    <Alert variant={variant} severity={severity} onClose={onClose}>
-      {children}
-    </Alert>
+    <Box
+      sx={{
+        position: "fixed",
+        bottom: "10vh",
+        right: "20px",
+        zIndex: 9999,
+        width: "30vw",
+      }}
+    >
+      <Alert variant={variant} severity={severity} onClose={onClose}>
+        {children}
+      </Alert>
+    </Box>
   );
 }

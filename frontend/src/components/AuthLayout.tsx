@@ -1,6 +1,9 @@
 import { Box, Paper } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
+  const theme = useTheme();
+
   return (
     <Box
       display="flex"
@@ -8,7 +11,8 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
       alignItems="center"
       minHeight="100vh"
       sx={{
-        background: "linear-gradient(135deg, #1e3c72, #2a5298)",
+        backgroundColor: `${theme.palette.secondary.main}`,
+        // background: `linear-gradient(135deg, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
         m: 0,
         p: 0,
       }}
@@ -20,6 +24,7 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
           width: 400,
           borderRadius: 2,
           textAlign: "center",
+          color: `${theme.palette.primary.main}`,
         }}
       >
         {children}
