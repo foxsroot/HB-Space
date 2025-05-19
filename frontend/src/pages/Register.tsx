@@ -51,6 +51,7 @@ const Register = () => {
       return;
     }
 
+    localStorage.setItem("token", data.token);
     navigate("/profile");
   };
 

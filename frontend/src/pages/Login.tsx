@@ -41,6 +41,7 @@ const Login = () => {
         return;
       }
 
+      localStorage.setItem("token", data.token);
       navigate("/profile");
     } catch (error) {
       console.log("Login failed");
