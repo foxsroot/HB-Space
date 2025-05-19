@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Box, Typography, Button, Avatar, Grid, Modal } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Box, Typography, Button, Avatar, Grid, Modal, CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
 import PostPreview from "../components/PostPreview";
 import Navbar from "../components/Navbar.tsx";
@@ -11,10 +11,17 @@ type Post = {
   likes: number;
 };
 
+interface UserProfile {
+  username: string;
+  profilePicture?: string;
+}
+
 function Profile() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const handleOpenEditProfile = () => {
     setIsEditProfileOpen(true);
@@ -34,6 +41,31 @@ function Profile() {
     setSelectedPost(null);
   };
 
+  // Fetch user data
+  useEffect(() => {
+    const fetchUser = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/user`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        if (!res.ok) throw new Error("Failed to fetch user data");
+        const data = await res.json();
+        setUser({
+          username: data.user.username,
+          profilePicture: data.user.profilePicture,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+      setLoading(false);
+    };
+
+    fetchUser();
+  }, [isEditProfileOpen]); // Refetch user data when the edit profile modal is closed
+
   const dummyPosts = [
     { id: 1, image: "/dummies/Post.png", likes: 23 },
     { id: 2, image: "/dummies/Post.png", likes: 45 },
@@ -45,6 +77,20 @@ function Profile() {
     { id: 8, image: "/dummies/Post.png", likes: 12 },
     { id: 9, image: "/dummies/Post.png", likes: 2 },
   ];
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+        sx={{ backgroundColor: "#000", color: "white" }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -78,13 +124,18 @@ function Profile() {
               height: 100,
               bgcolor: "#1e3c72",
             }}
+            src={
+              user?.profilePicture
+                ? `${import.meta.env.VITE_API_BASE_URL}${user.profilePicture}`
+                : "/default.png"
+            }
           >
-            U
+            {user?.username?.charAt(0).toUpperCase()}
           </Avatar>
 
           <Box ml={4} flex={1}>
             <Typography variant="h5" fontWeight="bold">
-              Stefan Ganteng
+              {user?.username || "Unknown User"}
             </Typography>
             <Typography variant="body2" color="gray">
               9 posts • 0 followers • 0 following

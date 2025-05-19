@@ -49,9 +49,6 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
 
 // Update an existing user
 export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
-  console.log("Update user called");
-  console.log("Request body:", req.body);
-  console.log("Request file:", req.file);
   if (!req.user) {
     return next(new ApiError(401, "Unauthorized"));
   }
