@@ -6,7 +6,7 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useState, useEffect } from "react";
 import SettingsPage from "../pages/SettingsPage";
-import CreatePostPage from "../pages/Create";
+import CreatePost from "../pages/CreatePost";
 
 const Navbar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -146,7 +146,7 @@ const Navbar = () => {
           backdropFilter: "blur(5px)",
         }}
       >
-        <CreatePostPage onClose={handleCloseCreate} />
+        <CreatePost open={isCreateOpen} onClose={handleCloseCreate} />
       </Modal>
     </Box>
   );
