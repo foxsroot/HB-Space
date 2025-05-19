@@ -8,10 +8,23 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
+
+    try {
+      const response = fetch(`${import.meta.env.VITE_API_BASE_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ identifier: email, password }),
+      });
+
+      const data = (await response).json();
+    } catch (error) {
+      console.log("Login failed");
+    }
+
     window.location.href = "/profile";
   };
 

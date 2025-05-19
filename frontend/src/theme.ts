@@ -3,11 +3,12 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
     palette: {
         primary: {
-            main: '#1e3c72',
+            main: '#0073e6',
+            contrastText: '#FFFFFF'
         },
         secondary: {
-            main: '#2a5298',
-        },
+            main: '#161a1d',
+        }
     },
     typography: {
         fontFamily: '"Poppins", Arial, sans-serif',
@@ -30,7 +31,7 @@ const theme = createTheme({
             fontFamily: '"Poppins", Arial, sans-serif',
         },
         body1: {
-            fontFamily: '"Poppins", Arial, sans-serif', // Apply to body text
+            fontFamily: '"Poppins", Arial, sans-serif',
         },
         body2: {
             fontFamily: '"Poppins", Arial, sans-serif',
