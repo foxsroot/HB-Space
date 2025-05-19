@@ -6,6 +6,7 @@ import {
   changePassword,
 } from "../controllers/userController";
 import { authenticateToken } from "../middlewares/authMiddleware";
+import { uploadSingleImage } from "../middlewares/multerMiddleware";
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router.get("/", authenticateToken, getUser);
 router.get("/:id", authenticateToken, getUserById);
 
 // Route to update an existing profile
-router.put("/", authenticateToken, updateUser);
+router.put("/", authenticateToken, uploadSingleImage, updateUser);
 
 // Route to change password
 router.post("/change-password", authenticateToken, changePassword);
