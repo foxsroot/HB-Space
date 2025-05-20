@@ -114,7 +114,7 @@ const Navbar = () => {
           sx={{ width: 32, height: 32, mr: 2, bgcolor: "#2a5298" }}
           src={
             profilePicture
-              ? `${import.meta.env.VITE_API_BASE_URL}${profilePicture}`
+              ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${profilePicture}`
               : "/default.png"
           }
         />
