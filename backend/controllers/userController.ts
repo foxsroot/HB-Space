@@ -69,7 +69,7 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
 
     // If a file was uploaded, update the profilePicture field
     if (req.file) {
-      user.profilePicture = `/uploads/${req.file.filename}`;
+      user.profilePicture = `${req.file.filename}`;
     }
 
     await user.save();

@@ -57,7 +57,7 @@ export const createPost = async (req: Request, res: Response, next: NextFunction
   }
 
   const { caption } = req.body;
-  const image = req.file?.path;
+  let image = req.file?.filename;
 
   if (!image || !caption) {
     return next(new ApiError(400, "Image and caption are required"));
@@ -127,7 +127,7 @@ export const updatePost = async (req: Request, res: Response, next: NextFunction
 
   const { postId } = req.params;
   const { caption } = req.body;
-  const image = req.file?.path;
+  let image = req.file?.filename;
 
   try {
     const post = await Post.findByPk(postId);

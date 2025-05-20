@@ -130,7 +130,7 @@ function Profile() {
               }}
               src={
                 user?.profilePicture
-                  ? `${import.meta.env.VITE_API_BASE_URL}${user.profilePicture}`
+                  ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${user.profilePicture}`
                   : "/default.png"
               }
             >
