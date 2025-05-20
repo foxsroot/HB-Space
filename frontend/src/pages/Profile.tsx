@@ -14,6 +14,7 @@ type Post = {
 interface UserProfile {
   username: string;
   profilePicture?: string;
+  bio?: string; // Add this field
 }
 
 function Profile() {
@@ -56,6 +57,7 @@ function Profile() {
         setUser({
           username: data.user.username,
           profilePicture: data.user.profilePicture,
+          bio: data.user.bio, // Fetch the bio
         });
       } catch (err) {
         console.error(err);
@@ -118,20 +120,23 @@ function Profile() {
           justifyContent="space-between"
           sx={{ mb: 4 }}
         >
-          <Avatar
-            sx={{
-              width: 100,
-              height: 100,
-              bgcolor: "#1e3c72",
-            }}
-            src={
-              user?.profilePicture
-                ? `${import.meta.env.VITE_API_BASE_URL}${user.profilePicture}`
-                : "/default.png"
-            }
-          >
-            {user?.username?.charAt(0).toUpperCase()}
-          </Avatar>
+          <Box display="flex" flexDirection="column" alignItems="center">
+            <Avatar
+              sx={{
+                width: 100,
+                height: 100,
+                bgcolor: "#1e3c72",
+                mb: 2,
+              }}
+              src={
+                user?.profilePicture
+                  ? `${import.meta.env.VITE_API_BASE_URL}${user.profilePicture}`
+                  : "/default.png"
+              }
+            >
+              {user?.username?.charAt(0).toUpperCase()}
+            </Avatar>
+          </Box>
 
           <Box ml={4} flex={1}>
             <Typography variant="h5" fontWeight="bold">
@@ -167,6 +172,13 @@ function Profile() {
           >
             <EditProfilePage onClose={handleCloseEditProfile} />
           </Modal>
+        </Box>
+
+        {/* Bio Section */}
+        <Box sx={{ textAlign: "left", mb: 4 }}>
+          <Typography variant="body1" color="white">
+            {user?.bio || "No bio available"} {/* Display the bio */}
+          </Typography>
         </Box>
 
         {/* Posts Section */}

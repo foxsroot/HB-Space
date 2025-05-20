@@ -4,18 +4,14 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SettingsPage from "../pages/SettingsPage";
-import CreatePostPage from "../pages/Create";
+import CreatePost from "../pages/CreatePost";
 
-// interface Props {
-//   onCreateClick: () => void;
-// }
-
-// const Navbar = ({ onCreateClick }: Props) => {
 const Navbar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
   const handleOpenSettings = () => {
     setIsSettingsOpen(true);
@@ -32,6 +28,26 @@ const Navbar = () => {
   const handleCloseCreate = () => {
     setIsCreateOpen(false);
   };
+
+  // Fetch user profile picture
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/user`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        if (!res.ok) throw new Error("Failed to fetch user profile");
+        const data = await res.json();
+        setProfilePicture(data.user.profilePicture);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   return (
     <Box
@@ -74,7 +90,6 @@ const Navbar = () => {
         display="flex"
         alignItems="center"
         sx={{ mb: 3 }}
-        // onClick={onCreateClick}
         onClick={handleOpenCreate}
         style={{ cursor: "pointer" }}
       >
@@ -93,10 +108,16 @@ const Navbar = () => {
         <Typography>Settings</Typography>
       </Box>
 
+      {/* Profile Section */}
       <Box display="flex" alignItems="center" sx={{ mt: "auto", mb: 2 }}>
-        <Avatar sx={{ width: 32, height: 32, mr: 2, bgcolor: "#2a5298" }}>
-          HSW
-        </Avatar>
+        <Avatar
+          sx={{ width: 32, height: 32, mr: 2, bgcolor: "#2a5298" }}
+          src={
+            profilePicture
+              ? `${import.meta.env.VITE_API_BASE_URL}${profilePicture}`
+              : "/default.png"
+          }
+        />
         <Link to="/profile" style={{ textDecoration: "none", color: "white" }}>
           <Typography>Profile</Typography>
         </Link>
@@ -125,7 +146,7 @@ const Navbar = () => {
           backdropFilter: "blur(5px)",
         }}
       >
-        <CreatePostPage onClose={handleCloseCreate} />
+        <CreatePost open={isCreateOpen} onClose={handleCloseCreate} />
       </Modal>
     </Box>
   );
