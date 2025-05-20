@@ -24,10 +24,10 @@ router.put("/:postId", authenticateToken, uploadSingleImage, updatePost);
 
 router.delete("/:postId", authenticateToken, deletePost);
 
-router.post("/:postId/like", authenticateToken, likePost);
+router.post("/:postId/likes", authenticateToken, likePost);
 
-router.delete(":postId/like", authenticateToken, unlikePost);
+router.delete(":postId/likes", authenticateToken, unlikePost);
 
-router.get("/:postId/like", authenticateToken, getLikes);
+router.get("/:postId/likes", authenticateToken, getLikes);
 
 export default router;

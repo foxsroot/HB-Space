@@ -24,7 +24,16 @@ export async function postComment(req: Request, res: Response, next: NextFunctio
             comment
         });
 
-        res.status(201).json({ comment: newComment });
+        const commentWithUser = await Comment.findOne({
+            where: { commentId: newComment.commentId },
+            include: {
+                model: User,
+                attributes: ["userId", "username", "profilePicture", "fullName"],
+            },
+        });
+
+
+        res.status(201).json({ comment: commentWithUser });
     } catch (error) {
         return next(new ApiError(500, "Failed to post comment"));
     }

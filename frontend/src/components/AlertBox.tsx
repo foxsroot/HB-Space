@@ -19,7 +19,7 @@ export default function AlertBox({
     <Box
       sx={{
         position: "fixed",
-        bottom: "10vh",
+        bottom: "5vh",
         right: "20px",
         zIndex: 9999,
         width: "30vw",
