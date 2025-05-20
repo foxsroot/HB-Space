@@ -35,7 +35,16 @@ export const getAllPosts = async (req: Request, res: Response, next: NextFunctio
       ],
       group: ["Post.post_id", "user.user_id"],
     });
-    res.status(200).json({ posts });
+    const parsedPosts = posts.map((post: any) => {
+      const json = post.toJSON();
+      return {
+        ...json,
+        likesCount: Number(json.likesCount),
+        commentsCount: Number(json.commentsCount),
+      };
+    });
+
+    res.status(200).json({ posts: parsedPosts });
   } catch (error) {
     console.error("Error:", error);
     next(new ApiError(500, "Failed to fetch posts"));

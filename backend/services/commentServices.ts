@@ -1,4 +1,4 @@
-import { Comment, CommentLike } from "../models/index";
+import { Comment, CommentLike, User } from "../models/index";
 import sequelize from "sequelize";
 
 export async function getComments(postId: string) {
@@ -10,14 +10,19 @@ export async function getComments(postId: string) {
                     model: CommentLike,
                     as: "likes",
                     attributes: []
+                },
+                {
+                    model: User,
+                    as: "user",
+                    attributes: ['userId', 'username', 'profilePicture', 'fullName']
                 }
             ],
             attributes: {
                 include: [
-                    [sequelize.fn("COUNT", sequelize.col("likes.comment_id")), "likesCount"]
+                    [sequelize.fn("COUNT", sequelize.col("likes.comment_id")), "likesCount"],
                 ]
             },
-            group: ["Comment.comment_id"],
+            group: ["Comment.comment_id", "user.user_id"],
             order: [
                 [sequelize.fn("COUNT", sequelize.col("likes.comment_id")), "DESC"],
                 ['created_at', 'ASC']

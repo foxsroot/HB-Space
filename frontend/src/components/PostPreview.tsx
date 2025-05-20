@@ -6,16 +6,16 @@ import IconButton from "@mui/material/IconButton";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 
 interface Props {
   image: string;
   alt?: string;
   likes: number;
   postId: string;
+  onClick?: () => void;
 }
 
-const PostPreview = ({ image, alt = "Post", likes, postId }: Props) => {
+const PostPreview = ({ image, alt = "Post", likes, onClick }: Props) => {
   const [hovered, setHovered] = useState(false);
   const [liked, setLiked] = useState(false);
   const [totalLikes, setTotalLikes] = useState(likes);
@@ -32,16 +32,17 @@ const PostPreview = ({ image, alt = "Post", likes, postId }: Props) => {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       sx={{ position: "relative", width: 216, height: 270 }}
+      onClick={onClick}
     >
-      <CardActionArea component={Link} to={`/post/${postId}`}>
+      <CardActionArea>
         <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
           <CardMedia
             component="img"
             image={image}
             alt={alt}
             sx={{
-              width: "100%",
-              height: "100%",
+              width: "216px",
+              height: "270px",
               objectFit: "cover",
             }}
           />

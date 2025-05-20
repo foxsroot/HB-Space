@@ -3,54 +3,64 @@ import { Box, Typography, Grid } from "@mui/material";
 import PostPreview from "../components/PostPreview";
 import Navbar from "../components/Navbar.tsx";
 import Searchbar from "../components/Searchbar";
+import PostDetailDialog from "../components/PostDetailDialog.tsx";
 
-const allDummyPosts = Array.from({ length: 100 }, (_, i) => ({
-  id: i + 1,
-  image: "/dummies/Post.png",
-  likes: Math.floor(Math.random() * 100),
-}));
+interface User {
+  userId: string;
+  username: string;
+  profilePicture: string;
+  fullName: string;
+}
 
-const POSTS_PER_LOAD = 25;
+interface Post {
+  postId: string;
+  image: string;
+  caption: string;
+  userId: string;
+  created_at: string;
+  updated_at: string;
+  likesCount: number;
+  commentsCount: number;
+  user: User;
+}
 
 function Explore() {
-  const sortedPosts = allDummyPosts.sort((a, b) => b.likes - a.likes);
-
-  const [visiblePosts, setVisiblePosts] = useState(
-    sortedPosts.slice(0, POSTS_PER_LOAD)
-  );
-  const [loadedCount, setLoadedCount] = useState(POSTS_PER_LOAD);
-  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
-  const loadMorePosts = () => {
-    if (loading || loadedCount >= sortedPosts.length) return;
-
-    setLoading(true);
-
-    setTimeout(() => {
-      const nextPosts = sortedPosts.slice(
-        loadedCount,
-        loadedCount + POSTS_PER_LOAD
-      );
-      setVisiblePosts((prev) => [...prev, ...nextPosts]);
-      setLoadedCount((prev) => prev + POSTS_PER_LOAD);
-      setLoading(false);
-    }, 300); // simulate loading delay
-  };
-
-  const handleScroll = useCallback(() => {
-    if (
-      window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
-      !loading
-    ) {
-      loadMorePosts();
-    }
-  }, [loadedCount, loading]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [error, setError] = useState("");
+  // const [alertActive, setAlertActive] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
+    const fetchPosts = async () => {
+      try {
+        const data = await fetch(`${import.meta.env.VITE_API_BASE_URL}/posts`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        const allPost = await data.json();
+        setPosts(allPost.posts);
+      } catch (e) {
+        setError(error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  const handleOpenDialog = (post: Post) => {
+    setSelectedPost(post);
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setSelectedPost(null);
+  };
 
   return (
     <Box
@@ -72,23 +82,29 @@ function Explore() {
         </Box>
 
         <Grid container spacing={2}>
-          {visiblePosts.map((post) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={post.id}>
+          {posts.map((post) => (
+            <Grid key={post.postId}>
               <PostPreview
-                image={post.image}
-                likes={post.likes}
-                postId={post.id.toString()}
+                image={`${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                  post.image
+                }`}
+                likes={post.likesCount}
+                postId={post.postId.toString()}
+                onClick={() => handleOpenDialog(post)}
               />
             </Grid>
           ))}
         </Grid>
-
-        {loading && (
-          <Typography align="center" mt={4}>
-            Loading more posts...
-          </Typography>
-        )}
       </Box>
+      {selectedPost && (
+        <PostDetailDialog
+          open={dialogOpen}
+          onClose={handleCloseDialog}
+          postId={selectedPost.postId}
+        />
+      )}
+
+      {/* <AlertBox>{error}</AlertBox> */}
     </Box>
   );
 }
