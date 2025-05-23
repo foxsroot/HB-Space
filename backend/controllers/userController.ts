@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { User } from "../models/User";
 import { ApiError } from "../utils/ApiError";
 import bcrypt from "bcrypt";
-import { UserFollow } from "../models";
+import { User, UserFollow } from "../models/index";
 
 // Get the current user's details
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -175,6 +174,10 @@ export const followUser = async (req: Request, res: Response, next: NextFunction
   const { userId } = req.user;
 
   const userToFollow = req.params.userId;
+
+  if (userId == userToFollow) {
+    return next(new ApiError(400, "Can't follow yourself"));
+  }
 
   try {
     const result = await UserFollow.create({
