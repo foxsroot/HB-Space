@@ -10,6 +10,9 @@ import {
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -20,7 +23,8 @@ interface Props {
   postId: string;
   initialLikes: number;
   initialComments: number;
-  onCommentClick?: () => void; // ✅ Optional comment click handler
+  caption?: string;
+  onCommentClick?: () => void;
 }
 
 const PostCard = ({
@@ -30,10 +34,13 @@ const PostCard = ({
   postId,
   initialLikes,
   initialComments,
+  caption,
   onCommentClick,
 }: Props) => {
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(initialLikes);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const menuOpen = Boolean(anchorEl);
 
   const handleLike = () => {
     const isLiking = !liked;
@@ -41,10 +48,23 @@ const PostCard = ({
     setLikes((prev) => prev + (isLiking ? 1 : -1));
   };
 
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+  const handleUnfollow = () => {
+    // TODO: Implement unfollow logic
+    handleMenuClose();
+    alert(`Unfollowed ${username}`);
+  };
+
   return (
     <Card
       sx={{
-        width: 300,
+        width: 480,
+        height: 750,
         mb: 4,
         backgroundColor: "#121212",
         color: "white",
@@ -59,6 +79,7 @@ const PostCard = ({
           backgroundColor: "#1a1a1a",
           px: 2,
           py: 1,
+          position: "relative",
         }}
       >
         <Link to={`/user/${username}`}>
@@ -76,6 +97,28 @@ const PostCard = ({
         >
           {username}
         </MuiLink>
+        <Box sx={{ flex: 1 }} />
+        <IconButton
+          aria-label="more"
+          aria-controls={`post-menu-${postId}`}
+          aria-haspopup="true"
+          onClick={handleMenuClick}
+          sx={{ color: "white" }}
+        >
+          <MoreVertIcon />
+        </IconButton>
+        <Menu
+          id={`post-menu-${postId}`}
+          anchorEl={anchorEl}
+          open={menuOpen}
+          onClose={handleMenuClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem onClick={handleUnfollow} sx={{ color: "red" }}>
+            Unfollow
+          </MenuItem>
+        </Menu>
       </Box>
 
       <CardMedia
@@ -83,8 +126,8 @@ const PostCard = ({
         image={image}
         alt="Post"
         sx={{
-          width: 300,
-          height: 375,
+          width: 480,
+          height: 600,
           objectFit: "cover",
         }}
       />
@@ -99,14 +142,22 @@ const PostCard = ({
           </IconButton>
           <Typography variant="body2">{likes}</Typography>
 
-          <IconButton
-            onClick={onCommentClick} // ✅ Handle comment button click
-            sx={{ color: "white", p: 0.5 }}
-          >
+          <IconButton onClick={onCommentClick} sx={{ color: "white", p: 0.5 }}>
             <ChatBubbleOutlineIcon />
           </IconButton>
           <Typography variant="body2">{initialComments}</Typography>
         </Box>
+
+        {caption && (
+          <Typography
+            variant="body2"
+            sx={{ color: "#fff", mt: 1, wordBreak: "break-word" }}
+          >
+            {caption.length > 200
+              ? caption.substring(0, 100) + "...."
+              : caption}
+          </Typography>
+        )}
       </CardContent>
     </Card>
   );

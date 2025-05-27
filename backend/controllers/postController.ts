@@ -111,7 +111,17 @@ export const getPostById = async (req: Request, res: Response, next: NextFunctio
 
     post.dataValues.likesCount = parseInt(post.dataValues.likesCount as string, 10) || 0;
 
-    const { comments } = await getComments(postId);
+    // Add isLiked for the current user
+    let isLiked = false;
+    if (req.user && req.user.userId) {
+      const like = await PostLike.findOne({
+        where: { postId, userId: req.user.userId }
+      });
+      isLiked = !!like;
+    }
+    post.dataValues.isLiked = isLiked;
+
+    const { comments } = await getComments(postId, req.user.userId);
     post.dataValues.comments = comments ?? [];
 
     res.status(200).json(post);

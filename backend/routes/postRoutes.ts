@@ -26,7 +26,7 @@ router.delete("/:postId", authenticateToken, deletePost);
 
 router.post("/:postId/likes", authenticateToken, likePost);
 
-router.delete(":postId/likes", authenticateToken, unlikePost);
+router.delete("/:postId/likes", authenticateToken, unlikePost);
 
 router.get("/:postId/likes", authenticateToken, getLikes);
 

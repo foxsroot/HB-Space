@@ -10,22 +10,24 @@ import Profile from "./pages/Profile.tsx";
 import Development from "./pages/Development.tsx";
 import Explore from "./pages/Explore.tsx";
 import Feed from "./pages/Feed.tsx";
-import PostDetailDialog from "./components/PostDetailDialog.tsx";
+import { UserProvider } from "./contexts/UserContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/development" element={<Development />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/feed" element={<Feed />} />
-        </Routes>
-      </BrowserRouter>
+      <UserProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navigate to="/feed" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/development" element={<Development />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/feed" element={<Feed />} />
+          </Routes>
+        </BrowserRouter>
+      </UserProvider>
     </ThemeProvider>
   </StrictMode>
 );
