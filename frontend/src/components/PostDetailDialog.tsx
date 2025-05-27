@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import UserList from "./UserList.tsx";
 import { ReactFormState } from "react-dom/client";
+import { useUserContext } from "../contexts/UserContext";
 
 type Comment = {
   commentId: string;
@@ -30,6 +31,7 @@ type Comment = {
   updated_at: string;
   likesCount: number;
   user: User;
+  isLiked?: boolean; // <-- add isLiked property
 };
 
 interface User {
@@ -58,20 +60,11 @@ interface Props {
 }
 
 const PostDetailDialog = ({ open, onClose, postId }: Props) => {
-  // const [likesDialogOpen, setLikesDialogOpen] = React.useState(false);
-  // const [isLiked, setIsLiked] = React.useState(!!post.isLiked);
-  // const [likeCount, setLikeCount] = React.useState(post.likeCount ?? 0);
-  // const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(
-  //   null
-  // );
-  // const [selectedComment, setSelectedComment] = React.useState<Comment | null>(
-  //   null
-  // );
+  const { currentUser } = useUserContext();
 
   const [post, setPost] = useState<Post | null>(null);
   const [comment, setComment] = useState("");
   const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(0);
 
   function getRelativeTime(dateString: string) {
     const now = new Date();
@@ -133,64 +126,137 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
     }
   };
 
+  // Like/unlike post
   const handleToggleLike = async () => {
+    if (!post) return;
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/posts/${postId}/likes`,
-        {
-          method: "POST",
+      const method = isLiked ? "DELETE" : "POST";
+      const url = `${import.meta.env.VITE_API_BASE_URL}/posts/${postId}/likes`;
+      const response = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (response.ok) {
+        // Try to get updated isLiked and likesCount from backend if available
+        const data = await response.json().catch(() => null);
+        if (
+          data &&
+          typeof data.isLiked !== "undefined" &&
+          typeof data.likesCount !== "undefined"
+        ) {
+          setIsLiked(!!data.isLiked);
+          setPost((prev) =>
+            prev ? { ...prev, likesCount: data.likesCount } : prev
+          );
+        } else {
+          setIsLiked((prev) => !prev);
+          setPost((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  likesCount: prev.likesCount + (isLiked ? -1 : 1),
+                }
+              : prev
+          );
         }
-      );
-
-      const postLike = await response.json();
-
-      if (postLike.error) {
-        return;
       }
-
-      setIsLiked((prev) => !prev);
     } catch (e) {
       console.log(e);
     }
   };
 
-  // const handleToggleCommentLike = (commentId: string) => {
-  //   setComments((prev) =>
-  //     prev.map((comment) =>
-  //       comment.id === commentId
-  //         ? {
-  //             ...comment,
-  //             isLiked: !comment.isLiked,
-  //             likeCount: comment.isLiked
-  //               ? comment.likeCount - 1
-  //               : comment.likeCount + 1,
-  //           }
-  //         : comment
-  //     )
-  //   );
-  //   onToggleCommentLike?.(commentId);
-  // };
+  // Like/unlike comment
+  const handleToggleCommentLike = async (commentId: string, liked: boolean) => {
+    try {
+      const method = liked ? "DELETE" : "POST";
+      const url = `${
+        import.meta.env.VITE_API_BASE_URL
+      }/posts/${postId}/comments/${commentId}/like`;
+      const response = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (response.ok) {
+        setPost((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            comments: prev.comments.map((c) =>
+              c.commentId === commentId
+                ? {
+                    ...c,
+                    likesCount: c.likesCount + (liked ? -1 : 1),
+                    isLiked: !liked,
+                  }
+                : c
+            ),
+          };
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
-  // const handleMenuOpen = (
-  //   event: React.MouseEvent<HTMLElement>,
-  //   comment: Comment
-  // ) => {
-  //   setMenuAnchorEl(event.currentTarget);
-  //   setSelectedComment(comment);
-  // };
+  // Edit comment
+  const handleEditComment = async (commentId: string, newComment: string) => {
+    try {
+      const url = `${
+        import.meta.env.VITE_API_BASE_URL
+      }/posts/${postId}/comments/${commentId}`;
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ comment: newComment }),
+      });
+      if (response.ok) {
+        setPost((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            comments: prev.comments.map((c) =>
+              c.commentId === commentId ? { ...c, comment: newComment } : c
+            ),
+          };
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
-  // const handleMenuClose = () => {
-  //   setMenuAnchorEl(null);
-  //   setSelectedComment(null);
-  // };
-
-  // const handleDeleteComment = () => {
-  //   if (selectedComment) {
-  //     setComments((prev) => prev.filter((c) => c.id !== selectedComment.id));
-  //     // TODO: Call backend delete here
-  //   }
-  //   handleMenuClose();
-  // };
+  // Delete comment
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      const url = `${
+        import.meta.env.VITE_API_BASE_URL
+      }/posts/${postId}/comments/${commentId}`;
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (response.ok) {
+        setPost((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            comments: prev.comments.filter((c) => c.commentId !== commentId),
+          };
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -210,8 +276,8 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
         onClose();
       }
 
-      console.log(postData);
       setPost(postData);
+      setIsLiked(!!postData.isLiked); // <-- set isLiked from backend
     };
 
     fetchData();
@@ -219,234 +285,445 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
 
   return (
     <>
-      {
-        post && (
-          <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-            <DialogContent sx={{ p: 0, display: "flex", height: 600 }}>
-              <Box
-                flex={3}
-                sx={{
-                  bgcolor: "#121212",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  aspectRatio: "4 / 5",
-                  minHeight: "100%",
+      {post && (
+        <Dialog
+          open={open}
+          onClose={onClose}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: {
+              background: "transparent",
+              boxShadow: "none",
+              borderRadius: 0,
+            },
+          }}
+        >
+          <DialogContent
+            sx={{
+              p: 0,
+              display: "flex",
+              height: { xs: 500, md: 600 },
+              background: "transparent",
+              borderRadius: 0,
+              boxShadow: "none",
+              overflow: "visible",
+              border: "none",
+            }}
+          >
+            <Box
+              flex={3}
+              sx={{
+                bgcolor: "#121212",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                aspectRatio: "4 / 5",
+                minHeight: "100%",
+                borderTopLeftRadius: 16,
+                borderBottomLeftRadius: 16,
+                overflow: "hidden",
+                border: "none",
+              }}
+            >
+              <img
+                src={`${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                  post.image
+                }`}
+                alt="post"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  objectFit: "cover",
+                  borderRadius: 0,
                 }}
-              >
-                <img
-                  src={`${import.meta.env.VITE_API_BASE_URL}/uploads/${
-                    post.image
-                  }`}
-                  alt="post"
-                  style={{
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    objectFit: "contain",
-                  }}
-                />
-              </Box>
-
+              />
+            </Box>
+            <Box
+              flex={2}
+              display="flex"
+              flexDirection="column"
+              position="relative"
+              bgcolor="#181818"
+              minWidth={320}
+              sx={{
+                borderTopRightRadius: 16,
+                borderBottomRightRadius: 16,
+                border: "none",
+              }}
+            >
               <Box
-                flex={2}
                 display="flex"
-                flexDirection="column"
-                position="relative"
-                bgcolor="#121212"
+                alignItems="center"
+                justifyContent="space-between"
+                px={2}
+                py={1}
+                sx={{ borderBottom: "1px solid #222" }}
               >
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  px={2}
-                  py={1}
+                <Box display="flex" alignItems="center" gap={1}>
+                  <MuiLink
+                    component={Link}
+                    to={`/user/${post.user.username}`}
+                    underline="none"
+                  >
+                    <Avatar
+                      src={
+                        post.user.profilePicture
+                          ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                              post.user.profilePicture
+                            }`
+                          : "/dummies/Avatar.png"
+                      }
+                      sx={{ mr: 1, width: 36, height: 36 }}
+                    >
+                      {post.user.username[0]?.toUpperCase()}
+                    </Avatar>
+                  </MuiLink>
+                </Box>
+                <MuiLink
+                  component={Link}
+                  to={`/user/${post.user.username}`}
+                  color="white"
+                  underline="hover"
                 >
-                  <Box display="flex" alignItems="center">
+                  <Typography
+                    variant="subtitle2"
+                    color="white"
+                    fontWeight="bold"
+                  >
+                    {post.user.username}
+                  </Typography>
+                </MuiLink>
+                <IconButton onClick={onClose} sx={{ color: "white" }}>
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+              <Box flex={1} overflow="auto" px={2} py={1}>
+                {/* Post caption section */}
+                <Box display="flex" alignItems="flex-start" mb={2} gap={1.5}>
+                  <MuiLink
+                    component={Link}
+                    to={`/user/${post.user.username}`}
+                    underline="none"
+                  >
+                    <Avatar
+                      src={
+                        post.user.profilePicture
+                          ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                              post.user.profilePicture
+                            }`
+                          : "/dummies/Avatar.png"
+                      }
+                      sx={{ width: 32, height: 32, mr: 1 }}
+                    >
+                      {post.user.username[0]?.toUpperCase()}
+                    </Avatar>
+                  </MuiLink>
+                  <Box flex={1}>
+                    <Typography variant="body2" color="white" sx={{ mb: 0.5 }}>
+                      <MuiLink
+                        component={Link}
+                        to={`/user/${post.user.username}`}
+                        underline="hover"
+                        color="white"
+                        fontWeight="bold"
+                      >
+                        {post.user.username}
+                      </MuiLink>{" "}
+                      {post.caption}
+                    </Typography>
+                    <Typography variant="caption" color="#aaa">
+                      {post.created_at
+                        ? getRelativeTime(post.created_at)
+                        : "Just now"}
+                    </Typography>
+                  </Box>
+                </Box>
+                {/* Comments section */}
+                {post.comments.length === 0 && (
+                  <Typography
+                    variant="body2"
+                    color="#aaa"
+                    textAlign="center"
+                    mt={2}
+                  >
+                    No comments yet. Be the first to comment!
+                  </Typography>
+                )}
+                {post.comments.map((c) => (
+                  <Box
+                    key={c.commentId}
+                    display="flex"
+                    alignItems="flex-start"
+                    mb={2}
+                    gap={1.5}
+                  >
                     <MuiLink
                       component={Link}
-                      to={`/user/${post.user.username}`}
+                      to={`/user/${c.user.username}`}
                       underline="none"
                     >
                       <Avatar
-                        src={`${import.meta.env.VITE_BASE_URL}/uploads/${
-                          post.user.profilePicture
-                        }`}
-                        sx={{ mr: 1 }}
+                        src={
+                          c.user.profilePicture
+                            ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                                c.user.profilePicture
+                              }`
+                            : "/dummies/Avatar.png"
+                        }
+                        sx={{ width: 32, height: 32, mr: 1 }}
                       >
-                        {post.user.username}
+                        {c.user.username[0]?.toUpperCase()}
                       </Avatar>
                     </MuiLink>
-                    <MuiLink
-                      component={Link}
-                      to={`/user/${post.user.username}`}
-                      color="white"
-                      underline="hover"
-                    >
-                      <Typography variant="subtitle2" color="white">
-                        {post.user.username}
-                      </Typography>
-                    </MuiLink>
-                  </Box>
-                  <IconButton onClick={onClose} sx={{ color: "white" }}>
-                    <CloseIcon />
-                  </IconButton>
-                </Box>
-                <Divider sx={{ borderColor: "white" }} />
-
-                <Box flex={1} overflow="auto" px={2} py={1}>
-                  {post.comments.map((c) => (
-                    <Box
-                      key={c.commentId}
-                      display="flex"
-                      alignItems="flex-start"
-                      mb={2}
-                    >
-                      <MuiLink
-                        component={Link}
-                        to={`/user/${c.user.username}`}
-                        underline="none"
-                      >
-                        <Avatar
-                          src={`${import.meta.env.VITE_API_BASE_URL}/uploads/${
-                            c.user.profilePicture
-                          }`}
-                          sx={{ width: 32, height: 32, mr: 1 }}
+                    <Box flex={1}>
+                      <Typography variant="body2" color="white">
+                        <MuiLink
+                          component={Link}
+                          to={`/user/${c.user.username}`}
+                          underline="hover"
+                          color="white"
+                          fontWeight="bold"
                         >
-                          {c.userId}
-                        </Avatar>
-                      </MuiLink>
-                      <Box flex={1}>
-                        <Typography variant="body2" color="white">
-                          <MuiLink
-                            component={Link}
-                            to={`/user/${c.user.username}`}
-                            underline="hover"
-                            color="white"
-                            fontWeight="bold"
-                          >
-                            {c.user.username}
-                          </MuiLink>{" "}
-                          {c.comment}
-                        </Typography>
-
-                        {/* <Box display="flex" alignItems="center" gap={1}>
-                          <IconButton
-                            onClick={() => handleToggleCommentLike(c.id)}
-                            sx={{ color: "white" }}
-                          >
-                            {c.isLiked ? (
-                              <FavoriteIcon color="error" />
-                            ) : (
-                              <FavoriteBorderIcon />
-                            )}
-                          </IconButton>
-                          <Typography variant="caption" color="white">
-                            {c.likesCount}{" "}
-                            {c.likesCount === 1 ? "like" : "likes"}
-                          </Typography>
-                        </Box> */}
-
+                          {c.user.username}
+                        </MuiLink>{" "}
+                        {c.comment}
+                      </Typography>
+                      <Typography variant="caption" color="#aaa">
+                        {c.created_at
+                          ? getRelativeTime(c.created_at)
+                          : "Just now"}
+                      </Typography>
+                      <Box display="flex" alignItems="center" gap={1} mt={0.5}>
+                        {/* Like button for any user */}
+                        <IconButton
+                          size="small"
+                          sx={{ color: c.isLiked ? "#e52e71" : "white" }}
+                          onClick={() =>
+                            handleToggleCommentLike(c.commentId, !!c.isLiked)
+                          }
+                        >
+                          {c.isLiked ? (
+                            <FavoriteIcon fontSize="small" />
+                          ) : (
+                            <FavoriteBorderIcon fontSize="small" />
+                          )}
+                        </IconButton>
                         <Typography variant="caption" color="white">
-                          {c.created_at
-                            ? getRelativeTime(c.created_at)
-                            : "Just now"}
+                          {c.likesCount} {c.likesCount === 1 ? "like" : "likes"}
                         </Typography>
+                        {/* Three dots menu for edit/delete */}
+                        <CommentMenu
+                          comment={c}
+                          post={post}
+                          currentUser={currentUser as any}
+                          onEdit={handleEditComment}
+                          onDelete={handleDeleteComment}
+                        />
                       </Box>
-                      {/* {selectedComment?.username === currentUser?.username && (
-                    <IconButton
-                      onClick={(e) => handleMenuOpen(e, c)}
-                      sx={{ color: "white" }}
-                    >
-                      <MoreVertIcon />
-                    </IconButton>
-                  )} */}
                     </Box>
-                  ))}
-                </Box>
-                <Divider sx={{ borderColor: "white" }} />
-
-                {/* Handle Post Like*/}
-                <Box px={2} py={1} display="flex" alignItems="center" gap={1}>
-                  <IconButton
-                    onClick={handleToggleLike}
-                    sx={{ color: "white" }}
-                  >
-                    {isLiked ? (
-                      <FavoriteIcon color="error" />
-                    ) : (
-                      <FavoriteBorderIcon />
-                    )}
-                  </IconButton>
-                  <Typography
-                    variant="body2"
-                    sx={{ cursor: "pointer", color: "white" }}
-                    // onClick={() => setLikesDialogOpen(true)}
-                  >
-                    {post.likesCount} {post.likesCount === 1 ? "like" : "likes"}
-                  </Typography>
-                </Box>
-
-                <Box
-                  px={2}
-                  py={1}
-                  display="flex"
-                  gap={1}
-                  component="form"
-                  onSubmit={handleAddComment}
-                >
-                  <TextField
-                    fullWidth
-                    placeholder="Add a comment..."
-                    variant="outlined"
-                    size="small"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleAddComment(e);
-                      }
-                    }}
-                    InputProps={{
-                      style: {
-                        color: "white",
-                        borderColor: "#ccc",
-                      },
-                    }}
-                  />
-                  <Button
-                    type="submit"
-                    disabled={!comment.trim()}
-                    sx={{ color: "black", backgroundColor: "white" }}
-                  >
-                    Post
-                  </Button>
-                </Box>
+                  </Box>
+                ))}
               </Box>
-            </DialogContent>
-          </Dialog>
-        )
+              <Divider sx={{ borderColor: "#222" }} />
+              <Box px={2} py={1} display="flex" alignItems="center" gap={1}>
+                <IconButton
+                  onClick={handleToggleLike}
+                  sx={{ color: isLiked ? "#e52e71" : "white" }}
+                >
+                  {isLiked ? (
+                    <FavoriteIcon color="error" />
+                  ) : (
+                    <FavoriteBorderIcon />
+                  )}
+                </IconButton>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "white", fontWeight: 500 }}
+                >
+                  {post.likesCount} {post.likesCount === 1 ? "like" : "likes"}
+                </Typography>
+              </Box>
+              <Box
+                px={2}
+                py={1}
+                display="flex"
+                gap={1}
+                alignItems="center"
+                component="form"
+                onSubmit={handleAddComment}
+                sx={{ borderTop: "1px solid #222" }}
+              >
+                {currentUser && (
+                  <Avatar
+                    src={
+                      currentUser.profilePicture
+                        ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                            currentUser.profilePicture
+                          }`
+                        : "/dummies/Avatar.png"
+                    }
+                    sx={{ width: 32, height: 32, mr: 1 }}
+                  >
+                    {currentUser.username[0]?.toUpperCase()}
+                  </Avatar>
+                )}
+                <TextField
+                  fullWidth
+                  placeholder="Add a comment..."
+                  variant="outlined"
+                  size="small"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleAddComment(e);
+                    }
+                  }}
+                  InputProps={{
+                    style: {
+                      color: "white",
+                      borderColor: "#333",
+                      background: "#232323",
+                      borderRadius: 8,
+                    },
+                  }}
+                  sx={{
+                    input: { color: "white" },
+                  }}
+                />
+                <Button
+                  type="submit"
+                  disabled={!comment.trim()}
+                  sx={{
+                    color: "white",
+                    backgroundColor: "#e52e71",
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    px: 3,
+                    boxShadow: 1,
+                    textTransform: "none",
+                  }}
+                >
+                  Post
+                </Button>
+              </Box>
+            </Box>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
+  );
+};
 
-        // <UserList
-        //   open={likesDialogOpen}
-        //   onClose={() => setLikesDialogOpen(false)}
-        //   users={post.likedUsers || []}
-        //   onFollowToggle={onFollowToggle}
-        //   title="Likes"
-        // />
+// Fix CommentMenu prop types to accept currentUser as User | null (with profilePicture optional)
+type CommentMenuUser = {
+  userId: string;
+  username: string;
+  profilePicture?: string;
+  fullName?: string;
+} | null;
 
-        // <Menu
-        //   anchorEl={menuAnchorEl}
-        //   open={Boolean(menuAnchorEl)}
-        //   onClose={handleMenuClose}
-        // >
-        //   {selectedComment?.username === currentUser?.username && (
-        //     <MenuItem onClick={handleDeleteComment} sx={{ color: "red" }}>
-        //       Delete
-        //     </MenuItem>
-        //   )}
-        // </Menu>
-      }
+const CommentMenu = ({
+  comment,
+  post,
+  currentUser,
+  onEdit,
+  onDelete,
+}: {
+  comment: Comment;
+  post: Post;
+  currentUser: CommentMenuUser;
+  onEdit: (commentId: string, newComment: string) => void;
+  onDelete: (commentId: string) => void;
+}) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editValue, setEditValue] = useState(comment.comment);
+  const menuOpen = Boolean(anchorEl);
+  // Fix: compare to comment.user.userId and post.user.userId
+  const isCommentOwner =
+    currentUser && currentUser.userId === comment.user.userId;
+  const isPostOwner = currentUser && currentUser.userId === post.user.userId;
+  const canEdit = isCommentOwner;
+  const canDelete = isCommentOwner || isPostOwner;
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setEditMode(false);
+    setEditValue(comment.comment);
+  };
+  const handleDelete = () => {
+    handleMenuClose();
+    onDelete(comment.commentId);
+  };
+  const handleEdit = () => {
+    setEditMode(true);
+  };
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onEdit(comment.commentId, editValue);
+    handleMenuClose();
+  };
+
+  if (!canEdit && !canDelete) return null;
+  return (
+    <>
+      <IconButton
+        size="small"
+        onClick={handleMenuClick}
+        sx={{ color: "white" }}
+      >
+        <MoreVertIcon fontSize="small" />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        open={menuOpen}
+        onClose={handleMenuClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        {canEdit && !editMode && <MenuItem onClick={handleEdit}>Edit</MenuItem>}
+        {canDelete && !editMode && (
+          <MenuItem onClick={handleDelete} sx={{ color: "red" }}>
+            Delete
+          </MenuItem>
+        )}
+        {editMode && (
+          <Box
+            component="form"
+            onSubmit={handleEditSubmit}
+            sx={{ p: 1, display: "flex", flexDirection: "column", gap: 1 }}
+          >
+            <TextField
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              size="small"
+              autoFocus
+              multiline
+              minRows={1}
+              maxRows={4}
+            />
+            <Box display="flex" gap={1} mt={1}>
+              <Button
+                type="submit"
+                variant="contained"
+                size="small"
+                disabled={!editValue.trim()}
+              >
+                Save
+              </Button>
+              <Button onClick={handleMenuClose} size="small" color="inherit">
+                Cancel
+              </Button>
+            </Box>
+          </Box>
+        )}
+      </Menu>
     </>
   );
 };

@@ -1,80 +1,130 @@
 import { Box, Typography } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import PostCard from "../components/PostCard";
 import PostDetailDialog from "../components/PostDetailDialog";
-
-// Dummy posts
-const dummyHomePosts = Array.from({ length: 5 }, (_, i) => ({
-  id: i + 1,
-  imageUrl: "/dummies/Post.png",
-  username: `user${i + 1}`,
-  avatarUrl: "/dummies/Avatar.png",
-  likes: Math.floor(Math.random() * 100),
-  comments: [
-    { id: "c1", username: "alice", text: "Nice post!" },
-    { id: "c2", username: "bob", text: ":fire::fire::fire:" },
-  ],
-}));
+import Loading from "../components/Loading";
 
 const Feed = () => {
-  const [selectedPost, setSelectedPost] = useState<
-    (typeof dummyHomePosts)[0] | null
-  >(null);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedPost, setSelectedPost] = useState<any | null>(null);
   const [open, setOpen] = useState(false);
 
-  const handleOpenPost = (postId: number) => {
-    const post = dummyHomePosts.find((p) => p.id === postId);
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/posts`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (res.ok && data.posts) {
+          setPosts(data.posts);
+        } else {
+          setError(data.message || "Failed to fetch posts");
+        }
+      } catch (e) {
+        setError("Failed to fetch posts");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPosts();
+  }, []);
+
+  const handleOpenPost = (postId: string) => {
+    const post = posts.find((p) => p.postId?.toString() === postId.toString());
     if (post) {
       setSelectedPost(post);
       setOpen(true);
     }
   };
 
-  const handleAddComment = (postId: string, text: string) => {
-    console.log("Add comment", postId, text);
-    // Implement comment persistence logic here if needed
-  };
-
-  const handleToggleLike = (postId: string) => {
-    console.log("Toggle like", postId);
-    // Implement like toggling logic here if needed
-  };
-
   return (
     <Box
       display="flex"
-      sx={{ backgroundColor: "#000", color: "white", minHeight: "100vh" }}
+      sx={{
+        background: "#000", // solid black background
+        color: "white",
+        minHeight: "100vh",
+      }}
     >
       <Navbar />
-      <Box flex={1} sx={{ ml: "275px", p: 4 }}>
-        <Typography variant="h5" fontWeight="bold" mb={3}>
-          Home
-        </Typography>
-        {dummyHomePosts.map((post) => (
-          <PostCard
-            key={post.id}
-            postId={post.id.toString()}
-            image={post.imageUrl}
-            username={post.username}
-            avatarUrl={post.avatarUrl}
-            initialLikes={post.likes}
-            initialComments={post.comments.length}
-            onCommentClick={() => handleOpenPost(post.id)}
-          />
-        ))}
-
-        {selectedPost && (
-          <PostDetailDialog
-            open={open}
-            onClose={() => setOpen(false)}
-            post={selectedPost}
-            onAddComment={handleAddComment}
-            onToggleLike={handleToggleLike}
-            onFollowToggle={() => console.log("Followed")}
-            currentUser={{ username: "user" }} // Pass logged-in user
-          />
-        )}
+      <Box
+        flex={1}
+        sx={{
+          ml: { xs: 0, md: "275px" },
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          minHeight: "100vh",
+          width: "100%",
+          p: 0,
+        }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            pt: 4,
+            pb: 4,
+            minHeight: "100vh",
+            background: "rgba(255,255,255,0.04)",
+          }}
+        >
+          {loading && <Loading />}
+          {error && <Typography color="error">{error}</Typography>}
+          {!loading && !error && (
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 4,
+                maxWidth: 500,
+                mx: "auto",
+              }}
+            >
+              {posts.map((post) => (
+                <PostCard
+                  key={post.postId}
+                  postId={post.postId?.toString()}
+                  image={`${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                    post.image
+                  }`}
+                  username={post.user?.username || ""}
+                  avatarUrl={
+                    post.user?.profilePicture
+                      ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                          post.user.profilePicture
+                        }`
+                      : "/dummies/Avatar.png"
+                  }
+                  caption={post.caption}
+                  initialLikes={post.likesCount || 0}
+                  initialComments={post.commentsCount || 0}
+                  onCommentClick={() => handleOpenPost(post.postId)}
+                />
+              ))}
+            </Box>
+          )}
+          {selectedPost && (
+            <PostDetailDialog
+              open={open}
+              onClose={() => setOpen(false)}
+              postId={selectedPost.postId?.toString()}
+            />
+          )}
+        </Box>
       </Box>
     </Box>
   );
