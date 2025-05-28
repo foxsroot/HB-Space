@@ -32,7 +32,7 @@ router.get("/:userId/followers", authenticateToken, getFollowers);
 // Route to get the current list user's following
 router.get("/:userId/followings", authenticateToken, getFollowings);
 
-// Route to get the current user's followers
+// Route to follow a user
 router.post("/:userId/followers", authenticateToken, followUser);
 
 // Route to get the current user's following

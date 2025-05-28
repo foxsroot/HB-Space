@@ -18,11 +18,14 @@ const Feed = () => {
       setError(null);
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/posts`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/posts/feeds`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const data = await res.json();
         if (res.ok && data.posts) {
           setPosts(data.posts);
@@ -112,6 +115,7 @@ const Feed = () => {
                   caption={post.caption}
                   initialLikes={post.likesCount || 0}
                   initialComments={post.commentsCount || 0}
+                  isLiked={post.isLiked}
                   onCommentClick={() => handleOpenPost(post.postId)}
                 />
               ))}

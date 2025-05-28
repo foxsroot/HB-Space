@@ -146,6 +146,7 @@ export const getFollowers = async (req: Request, res: Response, next: NextFuncti
 
     res.status(200).json(followers);
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Failed to fetch follower list"));
   }
 }

@@ -20,12 +20,12 @@ const PostPreview = ({ image, alt = "Post", likes, onClick }: Props) => {
   const [liked, setLiked] = useState(false);
   const [totalLikes, setTotalLikes] = useState(likes);
 
-  const handleLike = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const isLiking = !liked;
-    setLiked(isLiking);
-    setTotalLikes((prev) => prev + (isLiking ? 1 : -1));
-  };
+  // const handleLike = (e: React.MouseEvent) => {
+  //   e.preventDefault();
+  //   const isLiking = !liked;
+  //   setLiked(isLiking);
+  //   setTotalLikes((prev) => prev + (isLiking ? 1 : -1));
+  // };
 
   return (
     <Card
@@ -49,7 +49,7 @@ const PostPreview = ({ image, alt = "Post", likes, onClick }: Props) => {
 
           {hovered && (
             <>
-              <IconButton
+              {/* <IconButton
                 onClick={handleLike}
                 sx={{
                   position: "absolute",
@@ -64,7 +64,7 @@ const PostPreview = ({ image, alt = "Post", likes, onClick }: Props) => {
                 }}
               >
                 <FavoriteIcon fontSize="large" />
-              </IconButton>
+              </IconButton> */}
 
               <Typography
                 variant="caption"

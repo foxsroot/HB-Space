@@ -23,6 +23,7 @@ interface Props {
   postId: string;
   initialLikes: number;
   initialComments: number;
+  isLiked?: boolean;
   caption?: string;
   onCommentClick?: () => void;
 }
@@ -34,18 +35,33 @@ const PostCard = ({
   postId,
   initialLikes,
   initialComments,
+  isLiked = false,
   caption,
   onCommentClick,
 }: Props) => {
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(isLiked);
   const [likes, setLikes] = useState(initialLikes);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
 
-  const handleLike = () => {
-    const isLiking = !liked;
-    setLiked(isLiking);
-    setLikes((prev) => prev + (isLiking ? 1 : -1));
+  const handleLike = async () => {
+    const token = localStorage.getItem("token");
+    const method = liked ? "DELETE" : "POST";
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/posts/${postId}/likes`,
+        {
+          method,
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (res.ok) {
+        setLiked((prev) => !prev);
+        setLikes((prev) => prev + (liked ? -1 : 1));
+      }
+    } catch (e) {
+      // Optionally show error
+    }
   };
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {

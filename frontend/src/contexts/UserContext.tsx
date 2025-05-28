@@ -32,35 +32,35 @@ export const useUserContext = () => useContext(UserContext);
 export const UserProvider = ({ children }: PropsWithChildren<{}>) => {
   const [currentUser, setCurrentUser] = useState<User>();
 
-  // useEffect(() => {
-  //   const fetchCurrentUser = async () => {
-  //     try {
-  //       const token = localStorage.getItem("token");
-  //       if (!token) return;
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
-  //       const response = await fetch(
-  //         `${import.meta.env.VITE_API_BASE_URL}/user`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         }
-  //       );
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/user`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-  //       if (!response.ok) {
-  //         setCurrentUser(undefined);
-  //         localStorage.removeItem("token");
-  //       }
+        if (!response.ok) {
+          setCurrentUser(undefined);
+          localStorage.removeItem("token");
+        }
 
-  //       const userData: User = await response.json();
-  //       setCurrentUser(userData);
-  //     } catch (error) {
-  //       console.error("Error fetching current user:", error);
-  //     }
-  //   };
+        const userData = await response.json();
+        setCurrentUser(userData.user);
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      }
+    };
 
-  //   fetchCurrentUser();
-  // }, []);
+    fetchCurrentUser();
+  }, []);
 
   const updateUserProfile = (updatedUserData: User) => {
     setCurrentUser((prevUser) => ({ ...prevUser, ...updatedUserData }));

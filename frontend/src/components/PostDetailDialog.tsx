@@ -60,11 +60,12 @@ interface Props {
 }
 
 const PostDetailDialog = ({ open, onClose, postId }: Props) => {
-  const { currentUser } = useUserContext();
+  let { currentUser } = useUserContext();
 
   const [post, setPost] = useState<Post | null>(null);
   const [comment, setComment] = useState("");
   const [isLiked, setIsLiked] = useState(false);
+  const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
 
   function getRelativeTime(dateString: string) {
     const now = new Date();
@@ -115,7 +116,14 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
         prevPost
           ? {
               ...prevPost,
-              comments: [...prevPost.comments, response.comment],
+              comments: [
+                ...prevPost.comments,
+                {
+                  ...response.comment,
+                  likesCount: response.comment.likesCount ?? 0,
+                  isLiked: response.comment.isLiked ?? false,
+                },
+              ],
             }
           : null
       );
@@ -258,6 +266,7 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
     }
   };
 
+  // Fetch post details
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetch(
@@ -282,6 +291,52 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
 
     fetchData();
   }, [postId]);
+
+  // Fetch follow state when post is loaded
+  useEffect(() => {
+    if (!post || !currentUser) return;
+    if (post.user.userId === currentUser.userId) return;
+    const fetchFollow = async () => {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/user/${
+          post.user.userId
+        }/followers`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      if (res.ok) {
+        const followers = await res.json();
+        setIsFollowing(
+          Array.isArray(followers)
+            ? followers.some((f: any) => f.followerId === currentUser.userId)
+            : false
+        );
+      }
+    };
+    fetchFollow();
+  }, [post, currentUser]);
+
+  const handleFollowToggle = async () => {
+    if (!post || !currentUser) return;
+    const isSelf = post.user.userId === currentUser.userId;
+    if (isSelf) return;
+    const method = isFollowing ? "DELETE" : "POST";
+    const url = `${import.meta.env.VITE_API_BASE_URL}/user/${
+      post.user.userId
+    }/followers`;
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (res.ok) {
+        setIsFollowing((prev) => !prev);
+      }
+    } catch (e) {
+      // Optionally show error
+    }
+  };
 
   return (
     <>
@@ -394,6 +449,25 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                     {post.user.username}
                   </Typography>
                 </MuiLink>
+                {/* Follow/Unfollow button (not for self) */}
+                {currentUser && post.user.userId !== currentUser.userId && (
+                  <Button
+                    variant={isFollowing ? "outlined" : "contained"}
+                    size="small"
+                    sx={{
+                      ml: 2,
+                      color: isFollowing ? "#e52e71" : "white",
+                      background: isFollowing ? "transparent" : "#e52e71",
+                      borderColor: "#e52e71",
+                      textTransform: "none",
+                      fontWeight: 600,
+                      minWidth: 100,
+                    }}
+                    onClick={handleFollowToggle}
+                  >
+                    {isFollowing ? "Unfollow" : "Follow"}
+                  </Button>
+                )}
                 <IconButton onClick={onClose} sx={{ color: "white" }}>
                   <CloseIcon />
                 </IconButton>
