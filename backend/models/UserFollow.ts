@@ -3,7 +3,9 @@ import { User } from "./User";
 
 @Table({
     tableName: "user_follows",
-    timestamps: false
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
 })
 
 export class UserFollow extends Model {
@@ -24,13 +26,6 @@ export class UserFollow extends Model {
         field: "following_id"
     })
     declare followingId: string;
-
-    @Column({
-        type: DataType.DATE,
-        allowNull: false,
-        defaultValue: DataType.NOW
-    })
-    declare timestamp: Date;
 
     @BelongsTo(() => User, 'followerId')
     declare follower: User;

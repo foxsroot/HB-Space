@@ -7,7 +7,8 @@ import {
   deletePost,
   likePost,
   unlikePost,
-  getLikes
+  getLikes,
+  getFeeds
 } from "../controllers/postController";
 import { authenticateToken } from "../middlewares/authMiddleware";
 import { uploadSingleImage } from "../middlewares/multerMiddleware";
@@ -15,6 +16,8 @@ import { uploadSingleImage } from "../middlewares/multerMiddleware";
 const router = express.Router();
 
 router.get("/", authenticateToken, getAllPosts);
+
+router.get("/feeds", authenticateToken, getFeeds);
 
 router.post("/", authenticateToken, uploadSingleImage, createPost);
 
