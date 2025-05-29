@@ -19,6 +19,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Link } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
+import UserListDialog from "./UserList";
 
 type Comment = {
   commentId: string;
@@ -29,7 +30,7 @@ type Comment = {
   updated_at: string;
   likesCount: number;
   user: User;
-  isLiked?: boolean; // <-- add isLiked property
+  isLiked?: boolean;
 };
 
 interface User {
@@ -66,6 +67,10 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
   const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [userListOpen, setUserListOpen] = useState(false);
+  const [userList, setUserList] = useState<any[]>([]);
+  const [userListTitle, setUserListTitle] = useState("");
+  const [userListLoading, setUserListLoading] = useState(false);
 
   function getRelativeTime(dateString: string) {
     const now = new Date();
@@ -370,6 +375,79 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
     }
   };
 
+  // Handler to open user list for post likes
+  const handleOpenPostLikes = async () => {
+    if (!post) return;
+    setUserListTitle("Likes");
+    setUserListOpen(true);
+    setUserListLoading(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/posts/${post.postId}/likes`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setUserList(
+          (data.likedBy || []).map((u: any) => ({
+            id: u.userId,
+            username: u.username,
+            avatarUrl: u.profilePicture
+              ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                  u.profilePicture
+                }`
+              : undefined,
+            isFollowing: u.isFollowing, // backend can add this if needed
+          }))
+        );
+      } else {
+        setUserList([]);
+      }
+    } catch {
+      setUserList([]);
+    }
+    setUserListLoading(false);
+  };
+
+  // Handler to open user list for comment likes
+  const handleOpenCommentLikes = async (commentId: string) => {
+    setUserListTitle("Likes");
+    setUserListOpen(true);
+    setUserListLoading(true);
+    try {
+      const res = await fetch(
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }/posts/${postId}/comments/${commentId}/like`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setUserList(
+          (data.likes || []).map((like: any) => ({
+            id: like.user.userId,
+            username: like.user.username,
+            avatarUrl: like.user.profilePicture
+              ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                  like.user.profilePicture
+                }`
+              : undefined,
+            isFollowing: like.user.isFollowing, // backend can add this if needed
+          }))
+        );
+      } else {
+        setUserList([]);
+      }
+    } catch {
+      setUserList([]);
+    }
+    setUserListLoading(false);
+  };
+
   return (
     <>
       {post && (
@@ -647,7 +725,15 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                             <FavoriteBorderIcon fontSize="small" />
                           )}
                         </IconButton>
-                        <Typography variant="caption" color="white">
+                        <Typography
+                          variant="caption"
+                          color="white"
+                          sx={{
+                            cursor: "pointer",
+                            textDecoration: "underline",
+                          }}
+                          onClick={() => handleOpenCommentLikes(c.commentId)}
+                        >
                           {c.likesCount} {c.likesCount === 1 ? "like" : "likes"}
                         </Typography>
                         {/* Three dots menu for edit/delete */}
@@ -677,7 +763,13 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                 </IconButton>
                 <Typography
                   variant="body2"
-                  sx={{ color: "white", fontWeight: 500 }}
+                  sx={{
+                    color: "white",
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  }}
+                  onClick={handleOpenPostLikes}
                 >
                   {post.likesCount} {post.likesCount === 1 ? "like" : "likes"}
                 </Typography>
@@ -751,6 +843,15 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
           </DialogContent>
         </Dialog>
       )}
+      <UserListDialog
+        open={userListOpen}
+        onClose={() => setUserListOpen(false)}
+        users={userList}
+        title={
+          userListLoading ? `${userListTitle} (Loading...)` : userListTitle
+        }
+        currentUserId={currentUser?.userId}
+      />
     </>
   );
 };
