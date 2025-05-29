@@ -47,6 +47,30 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
+// get user and his posts by username
+export const getUserByUsername = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new ApiError(401, "Unauthorized"));
+  }
+
+  const { username } = req.params;
+
+  try {
+    const user = await User.findOne({
+      where: { username },
+      attributes: { exclude: ["password"] }
+    });
+
+    if (!user) {
+      return next(new ApiError(404, "User not found"));
+    }
+
+    res.status(200).json({ user });
+  } catch (error) {
+    return next(new ApiError(500, "Failed to fetch user by username"));
+  }
+};
+
 // Update an existing user
 export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
