@@ -108,7 +108,7 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                bgcolor: "rgba(30,60,114,0.85)",
+                bgcolor: "transparent", // transparent background
                 position: "fixed",
                 top: 0,
                 left: 0,
@@ -119,11 +119,11 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
                 sx={{
                     width: "100%",
                     maxWidth: 700,
-                    backgroundColor: "#1e3c72",
+                    backgroundColor: "#fff", // white card
                     borderRadius: 3,
                     p: { xs: 2, sm: 4 },
                     boxShadow: 8,
-                    color: "white",
+                    color: "#222",
                     display: "flex",
                     flexDirection: { xs: "column", md: "row" },
                     gap: 4,
@@ -138,12 +138,12 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
                         flexDirection: "column",
                         alignItems: "center",
                         gap: 2,
-                        borderRight: { md: "2px solid #2a5298" },
+                        borderRight: { md: "2px solid #e0e0e0" }, // light gray divider
                         pr: { md: 3 },
                         mb: { xs: 3, md: 0 },
                     }}
                 >
-                    <Typography variant="h4" sx={{ mb: 2, textAlign: "center", fontWeight: 700 }}>
+                    <Typography variant="h4" sx={{ mb: 2, textAlign: "center", fontWeight: 700, color: "#222" }}>
                         Edit Profile
                     </Typography>
                     {/* Avatar */}
@@ -154,8 +154,8 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
                                 height: 110,
                                 borderRadius: "50%",
                                 overflow: "hidden",
-                                border: "4px solid #2a5298",
-                                background: "#fff",
+                                border: "4px solid #b0b8c1", // subtle border
+                                background: "#f4f6fa",
                                 mb: 2,
                                 display: "flex",
                                 alignItems: "center",
@@ -183,13 +183,18 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
                         variant="outlined"
                         component="label"
                         sx={{
-                            backgroundColor: "white",
-                            color: "#1e3c72",
+                            backgroundColor: "#f4f6fa",
+                            color: "#222",
                             borderRadius: 1,
                             width: "100%",
                             fontWeight: 600,
                             letterSpacing: 1,
                             mb: 2,
+                            borderColor: "#b0b8c1",
+                            "&:hover": {
+                                backgroundColor: "#e0e0e0",
+                                borderColor: "#b0b8c1",
+                            },
                         }}
                     >
                         {form.profilePicture ? "Change Profile Picture" : "Upload Profile Picture"}
@@ -209,12 +214,14 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
                         variant="contained"
                         fullWidth
                         sx={{
-                            backgroundColor: "#2a5298",
-                            "&:hover": { backgroundColor: "#1e3c72" },
+                            backgroundColor: "#b0b8c1",
+                            color: "#222",
+                            "&:hover": { backgroundColor: "#a0a8b0", color: "#222" },
                             py: 1.5,
                             fontWeight: 700,
                             fontSize: "1.1rem",
                             mb: 1,
+                            boxShadow: "none",
                         }}
                         onClick={handleSave}
                         disabled={saving}
@@ -225,9 +232,10 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
                         variant="outlined"
                         fullWidth
                         sx={{
-                            color: "white",
-                            borderColor: "white",
-                            "&:hover": { borderColor: "#2a5298", color: "#2a5298", background: "#fff" },
+                            color: "#222",
+                            borderColor: "#b0b8c1",
+                            background: "#f4f6fa",
+                            "&:hover": { borderColor: "#a0a8b0", color: "#222", background: "#e0e0e0" },
                             py: 1.5,
                             fontWeight: 600,
                         }}
@@ -257,7 +265,8 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
                         value={form.fullName || ""}
                         onChange={handleChange}
                         variant="outlined"
-                        sx={{ backgroundColor: "white", borderRadius: 1 }}
+                        sx={{ backgroundColor: "#f4f6fa", borderRadius: 1 }}
+                        InputProps={{ style: { color: "#222" } }}
                     />
                     <TextField
                         fullWidth
@@ -268,7 +277,8 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
                         variant="outlined"
                         multiline
                         rows={3}
-                        sx={{ backgroundColor: "white", borderRadius: 1 }}
+                        sx={{ backgroundColor: "#f4f6fa", borderRadius: 1 }}
+                        InputProps={{ style: { color: "#222" } }}
                     />
                     <TextField
                         fullWidth
@@ -277,7 +287,8 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
                         value={form.country || ""}
                         onChange={handleChange}
                         variant="outlined"
-                        sx={{ backgroundColor: "white", borderRadius: 1 }}
+                        sx={{ backgroundColor: "#f4f6fa", borderRadius: 1 }}
+                        InputProps={{ style: { color: "#222" } }}
                     />
                     <TextField
                         fullWidth
@@ -288,7 +299,8 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
                         onChange={handleChange}
                         variant="outlined"
                         InputLabelProps={{ shrink: true }}
-                        sx={{ backgroundColor: "white", borderRadius: 1 }}
+                        sx={{ backgroundColor: "#f4f6fa", borderRadius: 1 }}
+                        InputProps={{ style: { color: "#222" } }}
                     />
                 </Box>
             </Box>
