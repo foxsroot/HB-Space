@@ -26,6 +26,7 @@ type Post = {
 interface UserProfile {
   userId: string;
   username: string;
+  fullName?: string;
   profilePicture?: string;
   bio?: string;
   postCount?: number;
@@ -76,6 +77,7 @@ function Profile() {
         setUser({
           username: data.user.username,
           profilePicture: data.user.profilePicture,
+          fullName: data.user.fullName,
           bio: data.user.bio,
           postCount: data.user.postCount,
           followerCount: data.user.followerCount,
@@ -266,6 +268,14 @@ function Profile() {
             <Typography variant="h5" fontWeight="bold">
               {user?.username || "Unknown User"}
             </Typography>
+            {user?.fullName && (
+              <Typography
+                variant="subtitle2"
+                sx={{ color: "#aaa", fontSize: "0.95rem", mt: 0.5 }}
+              >
+                {user.fullName}
+              </Typography>
+            )}
             <Typography variant="body2" color="gray">
               {user?.postCount ?? 0} posts{" "}
               <span

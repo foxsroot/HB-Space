@@ -37,7 +37,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Add thi
 app.use("/auth", authRoutes);
 
 // Comment routes
-app.use("/posts/:postId", commentRoute);
+app.use("/posts/:postId/comments", commentRoute);
 
 // User routes
 app.use("/user", userRoutes);

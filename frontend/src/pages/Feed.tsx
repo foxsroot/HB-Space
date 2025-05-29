@@ -117,6 +117,7 @@ const Feed = () => {
                   initialComments={post.commentsCount || 0}
                   isLiked={post.isLiked}
                   onCommentClick={() => handleOpenPost(post.postId)}
+                  userId={post.user?.userId}
                 />
               ))}
             </Box>

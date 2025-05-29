@@ -25,6 +25,7 @@ interface Props {
   initialComments: number;
   isLiked?: boolean;
   caption?: string;
+  userId: string;
   onCommentClick?: () => void;
 }
 
@@ -37,6 +38,7 @@ const PostCard = ({
   initialComments,
   isLiked = false,
   caption,
+  userId,
   onCommentClick,
 }: Props) => {
   const [liked, setLiked] = useState(isLiked);
@@ -70,10 +72,29 @@ const PostCard = ({
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-  const handleUnfollow = () => {
-    // TODO: Implement unfollow logic
-    handleMenuClose();
-    alert(`Unfollowed ${username}`);
+  const handleUnfollow = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/user/${userId}/followers`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (res.ok) {
+        handleMenuClose();
+        // Optionally update UI or notify parent
+        setLiked(false); // Optionally reset like state if needed
+        // Optionally trigger a callback or state update
+      } else {
+        handleMenuClose();
+        alert("Failed to unfollow user.");
+      }
+    } catch (e) {
+      handleMenuClose();
+      alert("Failed to unfollow user.");
+    }
   };
 
   return (

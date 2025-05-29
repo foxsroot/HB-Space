@@ -414,8 +414,32 @@ export const unfollowUser = async (req: Request, res: Response, next: NextFuncti
       }
     });
 
-    res.status(200).json(result);
+    res.status(200).json("message: 'Unfollowed successfully'");
   } catch (error) {
     return next(new ApiError(500, "Failed to follow user"));
+  }
+}
+
+export const searchUsers = async (req: Request, res: Response, next: NextFunction) => {
+  const { query } = req.query;
+
+  if (!query || typeof query !== "string") {
+    return next(new ApiError(400, "Query parameter is required"));
+  }
+
+  try {
+    const users = await User.findAll({
+      where: {
+        [Op.or]: [
+          { username: { [Op.iLike]: `%${query}%` } },
+          { fullName: { [Op.iLike]: `%${query}%` } }
+        ]
+      },
+      attributes: ["userId", "username", "profilePicture", "fullName"]
+    });
+
+    res.status(200).json(users);
+  } catch (error) {
+    return next(new ApiError(500, "Failed to search users"));
   }
 }

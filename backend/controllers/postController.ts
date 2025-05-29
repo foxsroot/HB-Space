@@ -185,8 +185,7 @@ export const getPostById = async (req: Request, res: Response, next: NextFunctio
           attributes: []
         },
       ],
-      group: ["Post.post_id",
-        "user.user_id"],
+      group: ["Post.post_id", "user.user_id"],
     });
     if (!post) {
       return next(new ApiError(404, "Post not found"));
@@ -203,6 +202,19 @@ export const getPostById = async (req: Request, res: Response, next: NextFunctio
       isLiked = !!like;
     }
     post.dataValues.isLiked = isLiked;
+
+    // Add isFollowing for the current user
+    let isFollowing = false;
+    if (req.user && req.user.userId && post.user?.userId) {
+      const follow = await UserFollow.findOne({
+        where: {
+          followerId: req.user.userId,
+          followingId: post.user.userId
+        }
+      });
+      isFollowing = !!follow;
+    }
+    post.dataValues.isFollowing = isFollowing;
 
     const { comments } = await getComments(postId, req.user.userId);
     post.dataValues.comments = comments ?? [];

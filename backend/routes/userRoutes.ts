@@ -8,6 +8,7 @@ import {
   followUser,
   unfollowUser,
   getUser,
+  searchUsers
 } from "../controllers/userController";
 import { authenticateToken } from "../middlewares/authMiddleware";
 import { uploadSingleImage } from "../middlewares/multerMiddleware";
@@ -15,6 +16,8 @@ import { uploadSingleImage } from "../middlewares/multerMiddleware";
 const router = express.Router();
 
 router.get("/", authenticateToken, getUser);
+
+router.get("/search", authenticateToken, searchUsers);
 
 // Route to get a profile by username
 router.get("/:username", authenticateToken, getUserByUsername);

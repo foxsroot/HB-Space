@@ -316,42 +316,12 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
       }
 
       setPost(postData);
-      setIsLiked(!!postData.isLiked); // <-- set isLiked from backend
+      setIsLiked(!!postData.isLiked);
+      setIsFollowing(postData.isFollowing);
     };
 
     fetchData();
   }, [postId]);
-
-  // Fetch follow state when post is loaded
-  useEffect(() => {
-    if (!post || !currentUser) return;
-    if (post.user.userId === currentUser.userId) return;
-    // Use isFollowing from post if available
-    if (typeof (post as any).isFollowing === "boolean") {
-      setIsFollowing((post as any).isFollowing);
-      return;
-    }
-    // Otherwise, fallback to API (legacy, but keep for safety)
-    const fetchFollow = async () => {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/user/${
-          post.user.userId
-        }/followers`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-      if (res.ok) {
-        const followers = await res.json();
-        setIsFollowing(
-          Array.isArray(followers)
-            ? followers.some((f: any) => f.userId === currentUser.userId)
-            : false
-        );
-      }
-    };
-    fetchFollow();
-  }, [post, currentUser]);
 
   const handleFollowToggle = async () => {
     if (!post || !currentUser) return;

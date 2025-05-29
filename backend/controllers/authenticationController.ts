@@ -62,11 +62,6 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         username,
         email,
         password,
-        fullName,
-        profilePicture,
-        bio,
-        country,
-        birthdate
     } = req.body;
 
     if (!username || !email || !password) {
@@ -93,11 +88,6 @@ export async function register(req: Request, res: Response, next: NextFunction) 
             username,
             email,
             password: hashedPassword,
-            fullName,
-            profilePicture,
-            bio,
-            country,
-            birthdate
         });
 
         const JWT_SECRET = process.env.JWT_SECRET;

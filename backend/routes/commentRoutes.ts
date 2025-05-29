@@ -4,11 +4,11 @@ import { authenticateToken } from "../middlewares/authMiddleware";
 
 const router = express.Router({ mergeParams: true });
 
-router.post("/comments", authenticateToken, postComment);
-router.get("/comments/:commentId/like", authenticateToken, getCommentLikes);
-router.post("/comments/:commentId/like", authenticateToken, likeComment);
-router.delete("/comments/:commentId/like", authenticateToken, unlikeComment);
-router.put("/comments/:commentId", authenticateToken, editComment);
-router.delete("/comments/:commentId", authenticateToken, deleteComment);
+router.post("/", authenticateToken, postComment);
+router.get("/:commentId/like", authenticateToken, getCommentLikes);
+router.post("/:commentId/like", authenticateToken, likeComment);
+router.delete("/:commentId/like", authenticateToken, unlikeComment);
+router.put("/:commentId", authenticateToken, editComment);
+router.delete("/:commentId", authenticateToken, deleteComment);
 
 export default router;

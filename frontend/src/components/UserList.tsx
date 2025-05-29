@@ -101,6 +101,12 @@ const UserListDialog = ({
           borderRadius: 3,
         },
       }}
+      sx={{
+        "& .MuiBackdrop-root": {
+          backgroundColor: "rgba(20, 22, 28, 0.95)",
+          backdropFilter: "blur(5px)",
+        },
+      }}
     >
       <DialogTitle
         sx={{
