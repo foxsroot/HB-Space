@@ -137,82 +137,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
         fetchUser();
     }, []);
 
-    const renderMainPanel = () => (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 2,
-                height: "100%",
-                textAlign: "center",
-                width: "40vh",
-            }}
-        >
-            <Typography variant="h4" sx={{ mb: 4, textAlign: "center" }}>
-                Settings
-            </Typography>
-
-            <Button
-                variant="contained"
-                fullWidth
-                startIcon={<AccountCircleIcon />}
-                sx={{
-                    backgroundColor: "#2a5298",
-                    "&:hover": { backgroundColor: "#1e3c72" },
-                    py: 1.5,
-                }}
-                onClick={() => setActivePanel("account")}
-            >
-                Change Account Details
-            </Button>
-
-            <Button
-                variant="contained"
-                fullWidth
-                startIcon={<LockIcon />}
-                sx={{
-                    backgroundColor: "#2a5298",
-                    "&:hover": { backgroundColor: "#1e3c72" },
-                    py: 1.5,
-                }}
-                onClick={() => setActivePanel("password")}
-            >
-                Change Password
-            </Button>
-
-            <Button
-                variant="contained"
-                fullWidth
-                startIcon={<ExitToAppIcon />}
-                sx={{
-                    backgroundColor: "red",
-                    "&:hover": { backgroundColor: "darkred" },
-                    py: 1.5,
-                }}
-                onClick={logout}
-            >
-                Logout
-            </Button>
-
-            <Button
-                variant="outlined"
-                fullWidth
-                sx={{
-                    color: "white",
-                    borderColor: "gray",
-                    "&:hover": { borderColor: "white" },
-                    mt: 2,
-                    py: 1.5,
-                }}
-                onClick={onClose}
-            >
-                Close
-            </Button>
-        </Box>
-    );
-
     const renderAccountDetailsPanel = () => (
         <Box
             sx={{
@@ -352,11 +276,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
         <Box
             sx={{
                 height: "100vh",
+                width: "100vw",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                color: "white",
-                p: 0,
+                bgcolor: "transparent",
+                position: "fixed",
+                top: 0,
+                left: 0,
+                zIndex: 10,
             }}
         >
             <Box
@@ -364,17 +292,107 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
                     width: "100%",
                     maxWidth: 400,
                     height: 500,
-                    backgroundColor: "#1e3c72",
+                    backgroundColor: "#fff",
                     borderRadius: 2,
                     p: 4,
-                    boxShadow: 24,
+                    pr: 4, // ensure right padding matches left
+                    pl: 4, // ensure left padding matches right
+                    boxShadow: 8,
                     display: "flex",
                     flexDirection: "column",
                     gap: 2,
-                    color: "white",
+                    color: "#222",
                 }}
             >
-                {activePanel === "main" && renderMainPanel()}
+                {activePanel === "main" && (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 2,
+                            height: "100%",
+                            textAlign: "center",
+                            width: "40vh",
+                        }}
+                    >
+                        <Typography variant="h4" sx={{ mb: 4, textAlign: "center" }}>
+                            Settings
+                        </Typography>
+
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            startIcon={<AccountCircleIcon />}
+                            sx={{
+                                backgroundColor: "#f4f6fa",
+                                color: "#222",
+                                fontWeight: 700,
+                                boxShadow: "none",
+                                border: "1px solid #e0e0e0",
+                                "&:hover": { backgroundColor: "#e0e0e0", color: "#222", border: "1px solid #b0b8c1" },
+                                py: 1.5,
+                            }}
+                            onClick={() => setActivePanel("account")}
+                        >
+                            Change Account Details
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            startIcon={<LockIcon />}
+                            sx={{
+                                backgroundColor: "#f4f6fa",
+                                color: "#222",
+                                fontWeight: 700,
+                                boxShadow: "none",
+                                border: "1px solid #e0e0e0",
+                                "&:hover": { backgroundColor: "#e0e0e0", color: "#222", border: "1px solid #b0b8c1" },
+                                py: 1.5,
+                            }}
+                            onClick={() => setActivePanel("password")}
+                        >
+                            Change Password
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            startIcon={<ExitToAppIcon />}
+                            sx={{
+                                backgroundColor: "#e74c3c",
+                                color: "#fff",
+                                fontWeight: 700,
+                                boxShadow: "none",
+                                border: "1px solid #c0392b",
+                                "&:hover": { backgroundColor: "#c0392b", color: "#fff", border: "1px solid #a93226" },
+                                py: 1.5,
+                            }}
+                            onClick={logout}
+                        >
+                            Logout
+                        </Button>
+
+                        <Button
+                            variant="outlined"
+                            fullWidth
+                            sx={{
+                                color: "#222",
+                                borderColor: "#b0b8c1",
+                                backgroundColor: "#f4f6fa",
+                                "&:hover": { borderColor: "#a0a8b0", color: "#222", backgroundColor: "#e0e0e0" },
+                                mt: 2,
+                                py: 1.5,
+                                fontWeight: 600,
+                            }}
+                            onClick={onClose}
+                        >
+                            Close
+                        </Button>
+                    </Box>
+                )}
                 {activePanel === "account" && renderAccountDetailsPanel()}
                 {activePanel === "password" && renderChangePasswordPanel()}
             </Box>
