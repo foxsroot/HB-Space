@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Button, Avatar, Grid, Modal, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  Avatar,
+  Grid,
+  Modal,
+  CircularProgress,
+} from "@mui/material";
 import { Link } from "react-router-dom";
 import PostPreview from "../components/PostPreview";
 import Navbar from "../components/Navbar.tsx";
@@ -23,6 +31,7 @@ function Profile() {
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   const handleOpenEditProfile = () => {
     setIsEditProfileOpen(true);
@@ -42,14 +51,15 @@ function Profile() {
     setSelectedPost(null);
   };
 
-  // Fetch user data
+  // Fetch user data and posts
   useEffect(() => {
     const fetchUser = async () => {
       setLoading(true);
       try {
+        const token = localStorage.getItem("token");
         const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/user`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         if (!res.ok) throw new Error("Failed to fetch user data");
@@ -57,28 +67,40 @@ function Profile() {
         setUser({
           username: data.user.username,
           profilePicture: data.user.profilePicture,
-          bio: data.user.bio, // Fetch the bio
+          bio: data.user.bio,
         });
+        // Fetch posts for this user
+        const postsRes = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/posts?userId=${
+            data.user.userId
+          }`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (postsRes.ok) {
+          const postsData = await postsRes.json();
+          setPosts(
+            (postsData.posts || []).map((p: any) => ({
+              id: p.postId,
+              image: `${import.meta.env.VITE_API_BASE_URL}/uploads/${p.image}`,
+              likes: p.likesCount || 0,
+            }))
+          );
+        } else {
+          setPosts([]);
+        }
       } catch (err) {
         console.error(err);
+        setPosts([]);
       }
       setLoading(false);
     };
 
     fetchUser();
   }, [isEditProfileOpen]); // Refetch user data when the edit profile modal is closed
-
-  const dummyPosts = [
-    { id: 1, image: "/dummies/Post.png", likes: 23 },
-    { id: 2, image: "/dummies/Post.png", likes: 45 },
-    { id: 3, image: "/dummies/Post.png", likes: 15 },
-    { id: 4, image: "/dummies/Post.png", likes: 7 },
-    { id: 5, image: "/dummies/Post.png", likes: 19 },
-    { id: 6, image: "/dummies/Post.png", likes: 31 },
-    { id: 7, image: "/dummies/Post.png", likes: 5 },
-    { id: 8, image: "/dummies/Post.png", likes: 12 },
-    { id: 9, image: "/dummies/Post.png", likes: 2 },
-  ];
 
   if (loading) {
     return (
@@ -130,7 +152,9 @@ function Profile() {
               }}
               src={
                 user?.profilePicture
-                  ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${user.profilePicture}`
+                  ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                      user.profilePicture
+                    }`
                   : "/default.png"
               }
             >
@@ -188,7 +212,7 @@ function Profile() {
           </Typography>
 
           <Grid container spacing={2}>
-            {dummyPosts.map((post) => (
+            {posts.map((post) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={post.id}>
                 <PostPreview
                   image={post.image}
