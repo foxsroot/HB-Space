@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import PostPreview from "../components/PostPreview";
 import Navbar from "../components/Navbar.tsx";
 import EditProfilePage from "./EditProfile.tsx";
+import PostDetailDialog from "../components/PostDetailDialog.tsx";
 
 type Post = {
   id: number;
@@ -29,12 +30,12 @@ interface UserProfile {
 }
 
 function Profile() {
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleOpenEditProfile = () => {
     setIsEditProfileOpen(true);
@@ -225,12 +226,21 @@ function Profile() {
                   image={post.image}
                   likes={post.likes}
                   postId={post.id.toString()}
+                  onClick={() => handleOpenDialog(post)}
                 />
               </Grid>
             ))}
           </Grid>
         </Box>
       </Box>
+      {/* Post Detail Dialog */}
+      {selectedPost && (
+        <PostDetailDialog
+          open={dialogOpen}
+          onClose={handleCloseDialog}
+          postId={selectedPost.id.toString()}
+        />
+      )}
     </Box>
   );
 }
