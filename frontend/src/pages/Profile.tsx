@@ -23,6 +23,9 @@ interface UserProfile {
   username: string;
   profilePicture?: string;
   bio?: string;
+  postCount?: number;
+  followerCount?: number;
+  followingCount?: number;
 }
 
 function Profile() {
@@ -68,6 +71,9 @@ function Profile() {
           username: data.user.username,
           profilePicture: data.user.profilePicture,
           bio: data.user.bio,
+          postCount: data.user.postCount,
+          followerCount: data.user.followerCount,
+          followingCount: data.user.followingCount,
         });
         // Fetch posts for this user
         const postsRes = await fetch(
@@ -167,7 +173,8 @@ function Profile() {
               {user?.username || "Unknown User"}
             </Typography>
             <Typography variant="body2" color="gray">
-              9 posts • 0 followers • 0 following
+              {user?.postCount ?? 0} posts • {user?.followerCount ?? 0} followers •{" "}
+              {user?.followingCount ?? 0} following
             </Typography>
           </Box>
 

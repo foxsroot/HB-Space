@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
 import bcrypt from "bcrypt";
-import { User, UserFollow } from "../models/index";
+import { User, UserFollow, Post } from "../models/index";
 import { Op } from "sequelize";
 
 // Get the current user's details
@@ -20,7 +20,20 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
       return next(new ApiError(404, "User not found"));
     }
 
-    res.status(200).json({ user });
+    const postCount = await Post.count({ where: { userId } });
+
+    const followerCount = await UserFollow.count({ where: { followingId: userId } });
+
+    const followingCount = await UserFollow.count({ where: { followerId: userId } });
+
+    res.status(200).json({
+      user: {
+        ...user.toJSON(),
+        postCount,
+        followerCount,
+        followingCount,
+      }
+    });
   } catch (error) {
     return next(new ApiError(500, "Failed to fetch user details"));
   }
@@ -42,7 +55,20 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
       return next(new ApiError(404, "User not found"));
     }
 
-    res.status(200).json({ user });
+    const postCount = await Post.count({ where: { userId: id } });
+
+    const followerCount = await UserFollow.count({ where: { followingId: id } });
+
+    const followingCount = await UserFollow.count({ where: { followerId: id } });
+
+    res.status(200).json({
+      user: {
+        ...user.toJSON(),
+        postCount,
+        followerCount,
+        followingCount,
+      }
+    });
   } catch (error) {
     return next(new ApiError(500, "Failed to fetch user by ID"));
   }
