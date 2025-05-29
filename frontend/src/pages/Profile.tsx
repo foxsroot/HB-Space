@@ -14,7 +14,7 @@ type Post = {
 interface UserProfile {
   username: string;
   profilePicture?: string;
-  bio?: string; // Add this field
+  bio?: string;
 }
 
 function Profile() {

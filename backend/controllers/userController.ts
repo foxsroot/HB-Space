@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
 import bcrypt from "bcrypt";
 import { User, UserFollow } from "../models/index";
+import { Op } from "sequelize";
 
 // Get the current user's details
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -54,20 +55,38 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
   }
 
   const { userId } = req.user;
-  const { fullName, bio, country, birthdate } = req.body;
+  const { fullName, bio, country, birthdate, username, email } = req.body;
+
+
+  if (username || email) {
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [
+          { username },
+          { email }
+        ],
+        userId: { [Op.ne]: userId }
+      }
+    });
+
+    if (existingUser) {
+      return next(new ApiError(409, "Username or email already exists."));
+    }
+  }
+
+  const user = await User.findByPk(userId);
+  if (!user) {
+    return next(new ApiError(404, "User not found"));
+  }
 
   try {
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return next(new ApiError(404, "User not found"));
-    }
-
     user.fullName = fullName || user.fullName;
     user.bio = bio || user.bio;
     user.country = country || user.country;
     user.birthdate = birthdate || user.birthdate;
+    user.username = username || user.username;
+    user.email = email || user.email;
 
-    // If a file was uploaded, update the profilePicture field
     if (req.file) {
       user.profilePicture = `${req.file.filename}`;
     }
@@ -108,8 +127,13 @@ export const changePassword = async (req: Request, res: Response, next: NextFunc
     return next(new ApiError(401, "Unauthorized"));
   }
 
-  const { oldPassword, newPassword } = req.body;
-  if (!oldPassword || !newPassword) {
+  const { currentPassword, newPassword } = req.body;
+
+  console.log("Changing password for user:", req.user.userId);
+  console.log("Old Password:", currentPassword);
+  console.log("New Password:", newPassword);
+
+  if (!currentPassword || !newPassword) {
     return next(new ApiError(400, "Old password and new password are required"));
   }
 
@@ -119,7 +143,7 @@ export const changePassword = async (req: Request, res: Response, next: NextFunc
       return next(new ApiError(404, "User not found"));
     }
 
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       return next(new ApiError(400, "Old password is incorrect"));
     }
