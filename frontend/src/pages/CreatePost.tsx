@@ -84,7 +84,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        bgcolor: "rgba(30,60,114,0.85)",
+        bgcolor: "transparent", // transparent background like EditProfile
         position: "fixed",
         top: 0,
         left: 0,
@@ -94,12 +94,12 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
       <Box
         sx={{
           width: "100%",
-          maxWidth: 800,
-          backgroundColor: "#1e3c72",
+          maxWidth: 700,
+          backgroundColor: "#fff", // white card
           borderRadius: 3,
           p: { xs: 2, sm: 4 },
           boxShadow: 8,
-          color: "white",
+          color: "#222",
           display: "flex",
           flexDirection: "column",
           gap: 4,
@@ -108,7 +108,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
         {/* Title */}
         <Typography
           variant="h4"
-          sx={{ textAlign: "left", fontWeight: 700, mb: 2 }}
+          sx={{ textAlign: "left", fontWeight: 700, mb: 2, color: "#222" }}
         >
           Create Post
         </Typography>
@@ -137,8 +137,8 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
                 height: 200,
                 borderRadius: "10px",
                 overflow: "hidden",
-                border: "2px solid #2a5298",
-                background: "#fff",
+                border: "2px solid #b0b8c1",
+                background: "#f4f6fa",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -155,7 +155,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
                   }}
                 />
               ) : (
-                <Typography variant="body2" color="gray">
+                <Typography variant="body2" color="#b0b8c1">
                   No image selected
                 </Typography>
               )}
@@ -164,14 +164,19 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
               variant="outlined"
               component="label"
               sx={{
-                backgroundColor: "white",
-                color: "#1e3c72",
+                backgroundColor: "#f4f6fa",
+                color: "#222",
                 borderRadius: 1,
                 width: "100%",
                 fontWeight: 600,
                 letterSpacing: 1,
-                height: 48, // Set consistent height
+                height: 48,
                 marginTop: 2,
+                borderColor: "#b0b8c1",
+                "&:hover": {
+                  backgroundColor: "#e0e0e0",
+                  borderColor: "#b0b8c1",
+                },
               }}
             >
               Upload Image
@@ -196,16 +201,16 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
             <TextField
               fullWidth
               multiline
-              rows={8} // Matches the height of the image preview
+              rows={7.4}
               placeholder="Write a caption..."
               value={description}
               onChange={handleDescriptionChange}
               variant="outlined"
               sx={{
-                backgroundColor: "white",
+                backgroundColor: "#f4f6fa",
                 borderRadius: 1,
-                height: "200px", // Matches the height of the image preview
               }}
+              InputProps={{ style: { color: "#222" } }}
             />
 
             {error && <Alert severity="error">{error}</Alert>}
@@ -216,15 +221,16 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
                 variant="outlined"
                 onClick={onClose}
                 sx={{
-                  color: "white",
-                  borderColor: "white",
+                  color: "#222",
+                  borderColor: "#b0b8c1",
+                  backgroundColor: "#f4f6fa",
                   "&:hover": {
-                    borderColor: "#2a5298",
-                    color: "#2a5298",
-                    background: "#fff",
+                    borderColor: "#a0a8b0",
+                    color: "#222",
+                    backgroundColor: "#e0e0e0",
                   },
                   fontWeight: 600,
-                  height: 48, // Set consistent height
+                  height: 48,
                   marginTop: 0,
                 }}
                 disabled={loading}
@@ -235,12 +241,14 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
                 variant="contained"
                 onClick={handlePostSubmit}
                 sx={{
-                  backgroundColor: "#2a5298",
-                  "&:hover": { backgroundColor: "#1e3c72" },
+                  backgroundColor: "#b0b8c1",
+                  color: "#222",
+                  "&:hover": { backgroundColor: "#a0a8b0", color: "#222" },
                   fontWeight: 700,
                   fontSize: "1.1rem",
-                  height: 48, // Set consistent height
+                  height: 48,
                   marginTop: 0,
+                  boxShadow: "none",
                 }}
                 disabled={loading}
               >
