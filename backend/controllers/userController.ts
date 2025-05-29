@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
 import bcrypt from "bcrypt";
-import { User, UserFollow, Post } from "../models/index";
+import { User, UserFollow, Post, PostLike } from "../models/index";
 import { Op } from "sequelize";
 
 // Get the current user's details
@@ -92,7 +92,86 @@ export const getUserByUsername = async (req: Request, res: Response, next: NextF
       return next(new ApiError(404, "User not found"));
     }
 
-    res.status(200).json({ user });
+    const userId = user.userId;
+    const postCount = await Post.count({ where: { userId } });
+    const followerCount = await UserFollow.count({ where: { followingId: userId } });
+    const followingCount = await UserFollow.count({ where: { followerId: userId } });
+
+    // Check if current user is following this user
+    let isFollowing = false;
+    if (req.user && req.user.userId && req.user.userId !== userId) {
+      const follow = await UserFollow.findOne({
+        where: {
+          followerId: req.user.userId,
+          followingId: userId
+        }
+      });
+
+      if (follow) {
+        isFollowing = true;
+      } else {
+        isFollowing = false;
+      }
+    }
+
+    // Fetch user's posts with the same structure as getAllPosts
+    const posts = await Post.findAll({
+      where: { userId },
+      attributes: {
+        include: [
+          [User.sequelize!.literal(`(
+            SELECT COUNT(*)
+            FROM post_likes AS likes
+            WHERE likes.post_id = "Post"."post_id"
+          )`), "likesCount"],
+          [User.sequelize!.literal(`(
+            SELECT COUNT(*)
+            FROM comments AS comments
+            WHERE comments.post_id = "Post"."post_id"
+          )`), "commentsCount"]
+        ]
+      },
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ['userId', 'username', 'profilePicture', 'fullName']
+        }
+      ]
+    });
+
+    // Get which posts are liked by the current user
+    let likedPostIds: Set<string> = new Set();
+    if (req.user && req.user.userId) {
+      const postIds = posts.map((post: any) => post.postId);
+      const userLikes = await PostLike.findAll({
+        where: {
+          postId: postIds,
+          userId: req.user.userId
+        }
+      });
+      likedPostIds = new Set(userLikes.map((like: any) => like.postId));
+    }
+    const parsedPosts = posts.map((post: any) => {
+      const json = post.toJSON();
+      return {
+        ...json,
+        likesCount: Number(json.likesCount),
+        commentsCount: Number(json.commentsCount),
+        isLiked: likedPostIds.has(post.postId)
+      };
+    });
+
+    res.status(200).json({
+      user: {
+        ...user.toJSON(),
+        postCount,
+        followerCount,
+        followingCount,
+        isFollowing,
+        posts: parsedPosts
+      }
+    });
   } catch (error) {
     return next(new ApiError(500, "Failed to fetch user by username"));
   }
@@ -210,15 +289,41 @@ export const changePassword = async (req: Request, res: Response, next: NextFunc
 
 export const getFollowers = async (req: Request, res: Response, next: NextFunction) => {
   const { userId } = req.params;
+  const currentUserId = req.user?.userId;
 
   try {
     const followers = await UserFollow.findAll({
       where: {
         followingId: userId
-      }
+      },
+      include: [
+        {
+          model: User,
+          as: "follower",
+          attributes: ["userId", "username", "profilePicture"]
+        }
+      ],
+      attributes: ["followerId"]
     });
 
-    res.status(200).json(followers);
+    let followingIds: Set<string> = new Set();
+    if (currentUserId) {
+      const followings = await UserFollow.findAll({
+        where: {
+          followerId: currentUserId,
+          followingId: followers.map((f: any) => f.followerId)
+        },
+        attributes: ["followingId"]
+      });
+      followingIds = new Set(followings.map((f: any) => f.followingId));
+    }
+
+    const result = followers.map((follow: any) => ({
+      ...follow.follower.toJSON(),
+      isFollowing: followingIds.has(follow.followerId)
+    }));
+
+    res.status(200).json(result);
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Failed to fetch follower list"));
@@ -227,15 +332,41 @@ export const getFollowers = async (req: Request, res: Response, next: NextFuncti
 
 export const getFollowings = async (req: Request, res: Response, next: NextFunction) => {
   const { userId } = req.params;
+  const currentUserId = req.user?.userId;
 
   try {
     const followings = await UserFollow.findAll({
       where: {
         followerId: userId
-      }
+      },
+      include: [
+        {
+          model: User,
+          as: "following",
+          attributes: ["userId", "username", "profilePicture"]
+        }
+      ],
+      attributes: ["followingId"]
     });
 
-    res.status(200).json(followings);
+    let followingIds: Set<string> = new Set();
+    if (currentUserId) {
+      const myFollowings = await UserFollow.findAll({
+        where: {
+          followerId: currentUserId,
+          followingId: followings.map((f: any) => f.followingId)
+        },
+        attributes: ["followingId"]
+      });
+      followingIds = new Set(myFollowings.map((f: any) => f.followingId));
+    }
+
+    const result = followings.map((follow: any) => ({
+      ...follow.following.toJSON(),
+      isFollowing: followingIds.has(follow.followingId)
+    }));
+
+    res.status(200).json(result);
   } catch (error) {
     return next(new ApiError(500, "Failed to fetch following list"));
   }

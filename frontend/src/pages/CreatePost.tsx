@@ -84,7 +84,8 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        bgcolor: "transparent", // transparent background like EditProfile
+        bgcolor: "rgba(24,24,24,0.65)", // lighter, more subtle overlay
+        backdropFilter: "blur(4px)", // adds a professional blur effect
         position: "fixed",
         top: 0,
         left: 0,
@@ -95,11 +96,11 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
         sx={{
           width: "100%",
           maxWidth: 700,
-          backgroundColor: "#fff", // white card
+          backgroundColor: "#181818", // dark card
           borderRadius: 3,
           p: { xs: 2, sm: 4 },
           boxShadow: 8,
-          color: "#222",
+          color: "#fff",
           display: "flex",
           flexDirection: "column",
           gap: 4,
@@ -108,7 +109,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
         {/* Title */}
         <Typography
           variant="h4"
-          sx={{ textAlign: "left", fontWeight: 700, mb: 2, color: "#222" }}
+          sx={{ textAlign: "left", fontWeight: 700, mb: 2, color: "#fff" }}
         >
           Create Post
         </Typography>
@@ -137,8 +138,8 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
                 height: 200,
                 borderRadius: "10px",
                 overflow: "hidden",
-                border: "2px solid #b0b8c1",
-                background: "#f4f6fa",
+                border: "2px solid #333",
+                background: "#222",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -155,7 +156,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
                   }}
                 />
               ) : (
-                <Typography variant="body2" color="#b0b8c1">
+                <Typography variant="body2" color="#666">
                   No image selected
                 </Typography>
               )}
@@ -164,18 +165,19 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
               variant="outlined"
               component="label"
               sx={{
-                backgroundColor: "#f4f6fa",
-                color: "#222",
+                backgroundColor: "#222",
+                color: "#fff",
                 borderRadius: 1,
                 width: "100%",
                 fontWeight: 600,
                 letterSpacing: 1,
                 height: 48,
                 marginTop: 2,
-                borderColor: "#b0b8c1",
+                borderColor: "#333",
                 "&:hover": {
-                  backgroundColor: "#e0e0e0",
-                  borderColor: "#b0b8c1",
+                  backgroundColor: "#333",
+                  borderColor: "#e52e71",
+                  color: "#e52e71",
                 },
               }}
             >
@@ -207,27 +209,53 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
               onChange={handleDescriptionChange}
               variant="outlined"
               sx={{
-                backgroundColor: "#f4f6fa",
+                backgroundColor: "#222",
                 borderRadius: 1,
+                "& .MuiOutlinedInput-root": {
+                  color: "#fff",
+                  borderColor: "#333",
+                  "& fieldset": {
+                    borderColor: "#333",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#e52e71",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#e52e71",
+                  },
+                },
+                "& .MuiInputBase-input": {
+                  color: "#fff",
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#aaa",
+                },
               }}
-              InputProps={{ style: { color: "#222" } }}
+              InputProps={{ style: { color: "#fff" } }}
             />
 
             {error && <Alert severity="error">{error}</Alert>}
             {success && <Alert severity="success">{success}</Alert>}
 
-            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2, gap: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                mt: 2,
+                gap: 2,
+              }}
+            >
               <Button
                 variant="outlined"
                 onClick={onClose}
                 sx={{
-                  color: "#222",
-                  borderColor: "#b0b8c1",
-                  backgroundColor: "#f4f6fa",
+                  color: "#fff",
+                  borderColor: "#333",
+                  backgroundColor: "#222",
                   "&:hover": {
-                    borderColor: "#a0a8b0",
-                    color: "#222",
-                    backgroundColor: "#e0e0e0",
+                    borderColor: "#e52e71",
+                    color: "#e52e71",
+                    backgroundColor: "#333",
                   },
                   fontWeight: 600,
                   height: 48,
@@ -241,9 +269,9 @@ const CreatePost: React.FC<CreatePostProps> = ({ open, onClose }) => {
                 variant="contained"
                 onClick={handlePostSubmit}
                 sx={{
-                  backgroundColor: "#b0b8c1",
-                  color: "#222",
-                  "&:hover": { backgroundColor: "#a0a8b0", color: "#222" },
+                  backgroundColor: "#e52e71",
+                  color: "#fff",
+                  "&:hover": { backgroundColor: "#c2185b", color: "#fff" },
                   fontWeight: 700,
                   fontSize: "1.1rem",
                   height: 48,

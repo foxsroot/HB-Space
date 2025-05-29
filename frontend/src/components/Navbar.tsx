@@ -4,7 +4,8 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useUserContext } from "../contexts/UserContext";
 import SettingsPage from "../pages/SettingsPage";
 import CreatePost from "../pages/CreatePost";
 
@@ -33,30 +34,12 @@ const navItemSx = {
 const Navbar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const { currentUser } = useUserContext();
 
   const handleOpenSettings = () => setIsSettingsOpen(true);
   const handleCloseSettings = () => setIsSettingsOpen(false);
   const handleOpenCreate = () => setIsCreateOpen(true);
   const handleCloseCreate = () => setIsCreateOpen(false);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/user`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        if (!res.ok) throw new Error("Failed to fetch user profile");
-        const data = await res.json();
-        setProfilePicture(data.user.profilePicture);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchUserProfile();
-  }, []);
 
   return (
     <Box
@@ -86,7 +69,7 @@ const Navbar = () => {
             pl: 3,
             mb: 2,
             color: "#fff",
-            fontFamily: "'Pacifico', cursive", 
+            fontFamily: "'Pacifico', cursive",
             letterSpacing: 1,
           }}
         >
@@ -121,7 +104,7 @@ const Navbar = () => {
 
       {/* Profile is now directly below Create */}
       <Link
-        to="/profile"
+        to={currentUser?.username ? `/${currentUser.username}` : "/feed"}
         style={{
           textDecoration: "none",
           display: "block",
@@ -130,10 +113,18 @@ const Navbar = () => {
       >
         <Box sx={{ ...navItemSx }}>
           <Avatar
-            sx={{ width: 32, height: 32, mr: 2, bgcolor: "#2a5298" }}
+            sx={{
+              width: 32,
+              height: 32,
+              mr: 2,
+              bgcolor: "#2a5298",
+              border: "2px solid #444",
+            }}
             src={
-              profilePicture
-                ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${profilePicture}`
+              currentUser?.profilePicture
+                ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                    currentUser.profilePicture
+                  }`
                 : "/default.png"
             }
           />

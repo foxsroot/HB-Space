@@ -80,7 +80,7 @@ const Feed = () => {
             pt: 4,
             pb: 4,
             minHeight: "100vh",
-            background: "rgba(255,255,255,0.04)",
+            background: "#000",
           }}
         >
           {loading && <Loading />}

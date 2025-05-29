@@ -1,25 +1,23 @@
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
-  IconButton,
   Box,
   Typography,
-  Avatar,
   Divider,
-  TextField,
-  Button,
-  Link as MuiLink,
+  IconButton,
   Menu,
   MenuItem,
+  Link as MuiLink,
+  Avatar,
+  Button,
+  TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import UserList from "./UserList.tsx";
-import { ReactFormState } from "react-dom/client";
 import { useUserContext } from "../contexts/UserContext";
 
 type Comment = {
@@ -66,6 +64,8 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
   const [comment, setComment] = useState("");
   const [isLiked, setIsLiked] = useState(false);
   const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   function getRelativeTime(dateString: string) {
     const now = new Date();
@@ -266,6 +266,31 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
     }
   };
 
+  // Delete post handler
+  const handleDeletePost = async () => {
+    if (!post) return;
+    setDeleteLoading(true);
+    try {
+      const url = `${import.meta.env.VITE_API_BASE_URL}/posts/${postId}`;
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (response.ok) {
+        setDeleteLoading(false);
+        onClose();
+      } else {
+        setDeleteLoading(false);
+        // Optionally show error
+      }
+    } catch (e) {
+      setDeleteLoading(false);
+      // Optionally show error
+    }
+  };
+
   // Fetch post details
   useEffect(() => {
     const fetchData = async () => {
@@ -296,6 +321,12 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
   useEffect(() => {
     if (!post || !currentUser) return;
     if (post.user.userId === currentUser.userId) return;
+    // Use isFollowing from post if available
+    if (typeof (post as any).isFollowing === "boolean") {
+      setIsFollowing((post as any).isFollowing);
+      return;
+    }
+    // Otherwise, fallback to API (legacy, but keep for safety)
     const fetchFollow = async () => {
       const res = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/user/${
@@ -309,7 +340,7 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
         const followers = await res.json();
         setIsFollowing(
           Array.isArray(followers)
-            ? followers.some((f: any) => f.followerId === currentUser.userId)
+            ? followers.some((f: any) => f.userId === currentUser.userId)
             : false
         );
       }
@@ -321,6 +352,7 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
     if (!post || !currentUser) return;
     const isSelf = post.user.userId === currentUser.userId;
     if (isSelf) return;
+    if (isFollowing === null) return; // Prevent click if state is unknown
     const method = isFollowing ? "DELETE" : "POST";
     const url = `${import.meta.env.VITE_API_BASE_URL}/user/${
       post.user.userId
@@ -418,7 +450,7 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                 <Box display="flex" alignItems="center" gap={1}>
                   <MuiLink
                     component={Link}
-                    to={`/user/${post.user.username}`}
+                    to={`/${post.user.username}`}
                     underline="none"
                   >
                     <Avatar
@@ -437,7 +469,7 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                 </Box>
                 <MuiLink
                   component={Link}
-                  to={`/user/${post.user.username}`}
+                  to={`/${post.user.username}`}
                   color="white"
                   underline="hover"
                 >
@@ -449,6 +481,37 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                     {post.user.username}
                   </Typography>
                 </MuiLink>
+                {/* Show menu only if current user is the post owner */}
+                {currentUser && post.user.userId === currentUser.userId && (
+                  <>
+                    <IconButton
+                      aria-label="more"
+                      onClick={(e) => setAnchorEl(e.currentTarget)}
+                      size="small"
+                      sx={{ color: "white" }}
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl)}
+                      onClose={() => setAnchorEl(null)}
+                      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                      transformOrigin={{ vertical: "top", horizontal: "right" }}
+                    >
+                      <MenuItem
+                        onClick={() => {
+                          setAnchorEl(null);
+                          handleDeletePost();
+                        }}
+                        disabled={deleteLoading}
+                        sx={{ color: "red" }}
+                      >
+                        Delete Post
+                      </MenuItem>
+                    </Menu>
+                  </>
+                )}
                 {/* Follow/Unfollow button (not for self) */}
                 {currentUser && post.user.userId !== currentUser.userId && (
                   <Button
@@ -464,6 +527,7 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                       minWidth: 100,
                     }}
                     onClick={handleFollowToggle}
+                    disabled={isFollowing === null}
                   >
                     {isFollowing ? "Unfollow" : "Follow"}
                   </Button>
@@ -477,7 +541,7 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                 <Box display="flex" alignItems="flex-start" mb={2} gap={1.5}>
                   <MuiLink
                     component={Link}
-                    to={`/user/${post.user.username}`}
+                    to={`/${post.user.username}`}
                     underline="none"
                   >
                     <Avatar
@@ -497,7 +561,7 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                     <Typography variant="body2" color="white" sx={{ mb: 0.5 }}>
                       <MuiLink
                         component={Link}
-                        to={`/user/${post.user.username}`}
+                        to={`/${post.user.username}`}
                         underline="hover"
                         color="white"
                         fontWeight="bold"
@@ -534,7 +598,7 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                   >
                     <MuiLink
                       component={Link}
-                      to={`/user/${c.user.username}`}
+                      to={`/${c.user.username}`}
                       underline="none"
                     >
                       <Avatar
@@ -554,7 +618,7 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                       <Typography variant="body2" color="white">
                         <MuiLink
                           component={Link}
-                          to={`/user/${c.user.username}`}
+                          to={`/${c.user.username}`}
                           underline="hover"
                           color="white"
                           fontWeight="bold"

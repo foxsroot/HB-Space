@@ -98,7 +98,7 @@ const PostCard = ({
           position: "relative",
         }}
       >
-        <Link to={`/user/${username}`}>
+        <Link to={`/${username}`}>
           <Avatar
             src={avatarUrl}
             sx={{ width: 32, height: 32, mr: 1, cursor: "pointer" }}
@@ -106,7 +106,7 @@ const PostCard = ({
         </Link>
         <MuiLink
           component={Link}
-          to={`/user/${username}`}
+          to={`/${username}`}
           color="inherit"
           underline="none"
           sx={{ fontWeight: "bold", fontSize: 14 }}

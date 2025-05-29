@@ -1,24 +1,23 @@
 import express from "express";
 import {
-  getUser,
-  getUserById,
+  getUserByUsername,
   updateUser,
   changePassword,
   getFollowers,
   getFollowings,
   followUser,
   unfollowUser,
+  getUser,
 } from "../controllers/userController";
 import { authenticateToken } from "../middlewares/authMiddleware";
 import { uploadSingleImage } from "../middlewares/multerMiddleware";
 
 const router = express.Router();
 
-// Route to get the current user's profile
 router.get("/", authenticateToken, getUser);
 
-// Route to get a profile by ID
-router.get("/:id", authenticateToken, getUserById);
+// Route to get a profile by username
+router.get("/:username", authenticateToken, getUserByUsername);
 
 // Route to update an existing profile
 router.put("/", authenticateToken, uploadSingleImage, updateUser);

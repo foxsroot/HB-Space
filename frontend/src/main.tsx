@@ -21,7 +21,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/:username" element={<Profile />} />
           <Route path="/development" element={<Development />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/feed" element={<Feed />} />
