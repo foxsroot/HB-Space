@@ -167,7 +167,7 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
                                     form.profilePicture?.startsWith("blob:")
                                         ? form.profilePicture
                                         : form.profilePicture
-                                        ? `${import.meta.env.VITE_API_BASE_URL}${form.profilePicture}`
+                                        ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${form.profilePicture}`
                                         : "/default.png"
                                 }
                                 alt="Profile"
