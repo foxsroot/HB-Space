@@ -71,6 +71,38 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
   const [userList, setUserList] = useState<any[]>([]);
   const [userListTitle, setUserListTitle] = useState("");
   const [userListLoading, setUserListLoading] = useState(false);
+  const [editPostMode, setEditPostMode] = useState(false);
+  const [editPostCaption, setEditPostCaption] = useState("");
+
+  const handleEditPost = () => {
+    setEditPostCaption(post?.caption || "");
+    setEditPostMode(true);
+    setAnchorEl(null);
+  };
+
+  const handleEditPostSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!post) return;
+    try {
+      const url = `${import.meta.env.VITE_API_BASE_URL}/posts/${post.postId}`;
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ caption: editPostCaption }),
+      });
+      if (response.ok) {
+        setPost((prev) =>
+          prev ? { ...prev, caption: editPostCaption } : prev
+        );
+        setEditPostMode(false);
+      }
+    } catch (e) {
+      // Optionally show error
+    }
+  };
 
   function getRelativeTime(dateString: string) {
     const now = new Date();
@@ -550,6 +582,12 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                       transformOrigin={{ vertical: "top", horizontal: "right" }}
                     >
                       <MenuItem
+                        onClick={handleEditPost}
+                        sx={{ color: "#e52e71" }}
+                      >
+                        Edit Post
+                      </MenuItem>
+                      <MenuItem
                         onClick={() => {
                           setAnchorEl(null);
                           handleDeletePost();
@@ -746,6 +784,82 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                   {post.likesCount} {post.likesCount === 1 ? "like" : "likes"}
                 </Typography>
               </Box>
+              {editPostMode && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 60,
+                    left: 0,
+                    right: 0,
+                    maxWidth: "100%",
+                    bgcolor: "#181818",
+                    zIndex: 20,
+                    p: 2,
+                    borderRadius: 2,
+                    boxShadow: 8,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                  }}
+                  component="form"
+                  onSubmit={handleEditPostSubmit}
+                >
+                  <Typography variant="h6" color="white" mb={1}>
+                    Edit Caption
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    multiline
+                    minRows={2}
+                    value={editPostCaption}
+                    onChange={(e) => setEditPostCaption(e.target.value)}
+                    variant="outlined"
+                    sx={{
+                      backgroundColor: "#222",
+                      borderRadius: 1,
+                      "& .MuiOutlinedInput-root": {
+                        color: "#fff",
+                        borderColor: "#333",
+                        "& fieldset": { borderColor: "#333" },
+                        "&:hover fieldset": { borderColor: "#e52e71" },
+                        "&.Mui-focused fieldset": { borderColor: "#e52e71" },
+                      },
+                      "& .MuiInputBase-input": { color: "#fff" },
+                    }}
+                  />
+                  <Box display="flex" gap={2} mt={1}>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{
+                        backgroundColor: "#e52e71",
+                        color: "#fff",
+                        fontWeight: 600,
+                        textTransform: "none",
+                        px: 3,
+                        borderRadius: 2,
+                        boxShadow: "none",
+                      }}
+                      disabled={!editPostCaption.trim()}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      sx={{
+                        color: "#fff",
+                        borderColor: "#333",
+                        background: "#222",
+                        px: 3,
+                        borderRadius: 2,
+                      }}
+                      onClick={() => setEditPostMode(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </Box>
+                </Box>
+              )}
               <Box
                 px={2}
                 py={1}
