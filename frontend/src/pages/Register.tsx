@@ -5,6 +5,7 @@ import PasswordField from "../components/PasswordField.tsx";
 import AuthRedirectText from "../components/AuthRedirectText.tsx";
 import AlertBox from "../components/AlertBox.tsx";
 import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../contexts/UserContext.tsx";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [alertActive, setAlertActive] = useState(false);
+  const { setCurrentUser } = useUserContext();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,10 +51,21 @@ const Register = () => {
       }, 3000);
 
       return;
+    } else {
+      setCurrentUser({
+        userId: data.user.userId,
+        username: data.user.username,
+        email: data.user.email,
+        profilePicture: data.user.profilePicture || "",
+        fullName: data.user.fullName || "",
+        bio: data.user.bio || "",
+        country: data.user.country || "",
+        birthdate: data.user.birthdate || "",
+      });
     }
 
     localStorage.setItem("token", data.token);
-    navigate("/profile");
+    navigate(`/${username}`);
   };
 
   return (

@@ -369,7 +369,7 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
                   u.profilePicture
                 }`
               : undefined,
-            isFollowing: u.isFollowing, // backend can add this if needed
+            isFollowing: u.isFollowing,
           }))
         );
       } else {
@@ -395,18 +395,20 @@ const PostDetailDialog = ({ open, onClose, postId }: Props) => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
+
       if (res.ok) {
         const data = await res.json();
+
         setUserList(
           (data.likes || []).map((like: any) => ({
-            id: like.user.userId,
-            username: like.user.username,
-            avatarUrl: like.user.profilePicture
+            id: like.userId,
+            username: like.username,
+            avatarUrl: like.profilePicture
               ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${
-                  like.user.profilePicture
+                  like.profilePicture
                 }`
               : undefined,
-            isFollowing: like.user.isFollowing, // backend can add this if needed
+            isFollowing: like.isFollowing,
           }))
         );
       } else {

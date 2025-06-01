@@ -4,7 +4,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUserContext } from "../contexts/UserContext";
 import SettingsPage from "../pages/SettingsPage";
 import CreatePost from "../pages/CreatePost";

@@ -232,7 +232,6 @@ export const updatePost = async (req: Request, res: Response, next: NextFunction
 
   const { postId } = req.params;
   const { caption } = req.body;
-  let image = req.file?.filename;
 
   try {
     const post = await Post.findByPk(postId);
@@ -245,7 +244,6 @@ export const updatePost = async (req: Request, res: Response, next: NextFunction
     }
 
     post.caption = caption || post.caption;
-    post.image = image || post.image;
 
     await post.save();
 

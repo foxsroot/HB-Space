@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
-import { Comment, CommentLike, Post, User } from "../models/index";
+import { Comment, CommentLike, Post, User, UserFollow } from "../models/index";
 
 export async function postComment(req: Request, res: Response, next: NextFunction) {
     if (!req.user) {
@@ -101,6 +101,7 @@ export async function unlikeComment(req: Request, res: Response, next: NextFunct
 
 export async function getCommentLikes(req: Request, res: Response, next: NextFunction) {
     const { commentId } = req.params;
+    const currentUserId = req.user?.userId;
 
     try {
         const comment = await Comment.findByPk(commentId);
@@ -120,7 +121,32 @@ export async function getCommentLikes(req: Request, res: Response, next: NextFun
             ]
         });
 
-        res.status(200).json({ likes });
+        const likedUserIds = likes
+            .map((like: any) => like.user?.userId)
+            .filter((id: string | undefined) => id && id !== currentUserId);
+
+        let followingIds: string[] = [];
+        if (currentUserId && likedUserIds.length > 0) {
+            const followings = await UserFollow.findAll({
+                where: {
+                    followerId: currentUserId,
+                    followingId: likedUserIds
+                }
+            });
+            followingIds = followings.map((f: any) => f.followingId);
+        }
+
+        const likesWithIsFollowing = likes.map((like: any) => {
+            const user = like.user?.toJSON ? like.user.toJSON() : like.user;
+            return {
+                ...user,
+                isFollowing: user && currentUserId && user.userId !== currentUserId
+                    ? followingIds.includes(user.userId)
+                    : false
+            };
+        });
+
+        res.status(200).json({ likes: likesWithIsFollowing });
     } catch (error) {
         return next(new ApiError(500, "Failed to fetch likes"));
     }

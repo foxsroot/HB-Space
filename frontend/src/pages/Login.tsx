@@ -5,6 +5,7 @@ import AuthRedirectText from "../components/AuthRedirectText.tsx";
 import PasswordField from "../components/PasswordField.tsx";
 import AlertBox from "../components/AlertBox.tsx";
 import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../contexts/UserContext.tsx";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [alertActive, setAlertActive] = useState(false);
   const [error, setError] = useState("");
+  const { currentUser, setCurrentUser } = useUserContext();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +44,16 @@ const Login = () => {
       }
 
       localStorage.setItem("token", data.token);
-      navigate("/profile");
+
+      setCurrentUser({
+        userId: data.userId,
+        username: data.username,
+        email: data.email,
+        profilePicture: data.profilePicture || "",
+        fullName: data.fullName || "",
+      });
+
+      navigate(`/${data.username}`);
     } catch (error) {
       console.log("Login failed");
     }

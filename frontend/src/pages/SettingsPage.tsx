@@ -4,7 +4,8 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LockIcon from "@mui/icons-material/Lock";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { useNavigate } from "react-router-dom";
-import AlertBox from "../components/AlertBox"; // import AlertBox
+import AlertBox from "../components/AlertBox";
+import { useUserContext } from "../contexts/UserContext";
 
 interface SettingsPageProps {
   onClose: () => void;
@@ -24,6 +25,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const { setCurrentUser } = useUserContext();
 
   // Alert state
   const [alert, setAlert] = useState<{
@@ -95,7 +97,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
         const err = await res.json();
         showAlert(
           "error",
-          "Failed to change password: " + (err.message || res.statusText)
+          "Failed to change password: " + (err.error || res.statusText)
         );
       }
     } catch (error) {
@@ -120,8 +122,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
       );
       if (res.ok) {
         localStorage.removeItem("token");
+        setCurrentUser(undefined);
         showAlert("success", "Logout successful");
-        setTimeout(() => navigate("/login"), 1000); // Delay for user to see alert
+        setTimeout(() => navigate("/login"), 1000);
       } else {
         const err = await res.json();
         showAlert("error", "Logout failed: " + (err.message || res.statusText));

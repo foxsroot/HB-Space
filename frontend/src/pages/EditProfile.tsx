@@ -7,6 +7,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
+import { useUserContext } from "../contexts/UserContext"; // <-- Import UserContext
 
 interface EditProfilePageProps {
   onClose: () => void;
@@ -20,11 +21,11 @@ interface UserProfile {
   country?: string;
   birthdate?: string;
   profilePicture?: string;
-  profilePictureFile?: File; // <-- Add this line
+  profilePictureFile?: File;
 }
 
 const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const { currentUser, updateUserProfile } = useUserContext(); // <-- Use UserContext
   const [form, setForm] = useState<UserProfile>({ username: "", email: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -32,34 +33,19 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/user`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        if (!res.ok) throw new Error("Failed to fetch profile");
-        const data = await res.json();
-        setProfile(data.user);
-        setForm({
-          username: data.user.username || "",
-          email: data.user.email || "",
-          fullName: data.user.fullName || "",
-          bio: data.user.bio || "",
-          country: data.user.country || "",
-          birthdate: data.user.birthdate || "",
-          profilePicture: data.user.profilePicture || "",
-        });
-      } catch (err: any) {
-        setError(err.message || "Error fetching profile");
-      }
+    if (currentUser) {
+      setForm({
+        username: currentUser.username || "",
+        email: currentUser.email || "",
+        fullName: currentUser.fullName || "",
+        bio: currentUser.bio || "",
+        country: currentUser.country || "",
+        birthdate: currentUser.birthdate || "",
+        profilePicture: currentUser.profilePicture || "",
+      });
       setLoading(false);
-    };
-    fetchProfile();
-  }, []);
+    }
+  }, [currentUser]);
 
   // Handle form changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,7 +78,7 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ onClose }) => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update profile");
       setSuccess("Profile updated successfully!");
-      setProfile(data.user);
+      updateUserProfile(data.user); // <-- Update UserContext
     } catch (err: any) {
       setError(err.message || "Error updating profile");
     }

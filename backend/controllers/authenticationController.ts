@@ -50,7 +50,11 @@ export async function login(req: Request, res: Response, next: NextFunction) {
         res.status(200).json({
             message: "Login successful",
             token,
-            userId: user.userId
+            userId: user.userId,
+            username: user.username,
+            email: user.email,
+            profilePicture: user.profilePicture || "",
+            fullName: user.fullName || ""
         })
     } catch (error) {
         next(new ApiError(500, "Login failed"));

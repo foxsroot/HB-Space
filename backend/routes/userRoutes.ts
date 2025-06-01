@@ -37,7 +37,7 @@ router.get("/:userId/followings", authenticateToken, getFollowings);
 // Route to follow a user
 router.post("/:userId/followers", authenticateToken, followUser);
 
-// Route to get the current user's following
+// Route to unfollow a user
 router.delete("/:userId/followers", authenticateToken, unfollowUser);
 
 export default router;
